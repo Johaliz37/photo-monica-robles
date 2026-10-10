@@ -25,7 +25,7 @@ Coste 0 €: Cloudflare Workers (static assets) + Supabase Free + GitHub Actions
 
 | Ajuste                         | Valor                                                       |
 | ------------------------------ | ----------------------------------------------------------- |
-| Build command                  | `npm run build`                                             |
+| Build command                  | vacío (lo ejecuta `[build]` de `wrangler.toml`)             |
 | Deploy command                 | `npx wrangler deploy`                                       |
 | Variables de **build**         | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL` |
 

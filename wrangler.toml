@@ -2,6 +2,10 @@
 name = "photo-monica-robles"
 compatibility_date = "2026-10-01"
 
+# wrangler deploy compila antes de subir, aunque el "Build command" del dashboard esté vacío
+[build]
+command = "npm run build"
+
 [assets]
 directory = "./dist"
 # Rutas desconocidas (/reservar, /admin/...) sirven index.html con 200
