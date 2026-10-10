@@ -1,0 +1,26 @@
+# Dependencias y build
+node_modules/
+dist/
+dist-ssr/
+
+# Entorno (nunca subir claves)
+.env*
+!.env.example
+*.local
+
+# Binarios de origen (31 MB, no se versiona)
+paquetes_navidad_2026.pdf
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / SO
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+
+# Páginas extraídas del PDF (se regeneran con npm run images)
+assets-src/

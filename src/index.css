@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Paleta del PDF de Navidad 2026 (primera aproximación) */
+  --color-cream: #f5ede1;
+  --color-cream-dark: #eadbc8;
+  --color-gold: #8a6d3b;
+  /* Dorado oscuro para texto pequeño sobre crema (contraste ≥ 4,5:1) */
+  --color-gold-dark: #6f5529;
+  --color-gold-light: #c9a96e;
+  --color-ink: #4a3b2a;
+  --color-xmas-red: #a8262b;
+  --color-pine: #2f4a34;
+
+  --font-display: 'Cinzel', 'Cormorant Garamond', serif;
+  --font-script: 'Great Vibes', cursive;
+  --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cream font-sans font-light text-ink antialiased;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-gold-dark;
+  }
+}
+
+/* Sin animaciones para quien lo pide en su sistema */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

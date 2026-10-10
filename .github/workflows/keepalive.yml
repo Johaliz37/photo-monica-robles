@@ -1,0 +1,22 @@
+# Evita que Supabase Free se pause (se pausa tras 7 días sin actividad).
+# Requiere los secrets del repo SUPABASE_URL y SUPABASE_ANON_KEY.
+name: supabase-keepalive
+on:
+  schedule: [{ cron: '0 8 */3 * *' }] # cada 3 días, 08:00 UTC
+  workflow_dispatch:
+permissions: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Llamar a get_availability
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          curl -fsS --retry 3 --retry-delay 10 -X POST "$SUPABASE_URL/rest/v1/rpc/get_availability" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"p_from\":\"$(date -u +%FT%TZ)\",\"p_to\":\"$(date -u -d '+1 day' +%FT%TZ)\"}" \
+            -o /dev/null -w "HTTP %{http_code}\n"

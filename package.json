@@ -1,0 +1,50 @@
+{
+  "name": "monica-robles-navidad-2026",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "oxlint",
+    "format": "prettier --write .",
+    "images": "node scripts/build-images.mjs",
+    "purge:receipts": "node scripts/purge-receipts.mjs",
+    "db:start": "npx -y supabase@latest start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,mailpit,supavisor,postgres-meta",
+    "db:stop": "npx -y supabase@latest stop",
+    "db:types": "npx -y supabase@latest gen types typescript --local --schema public > src/lib/database.types.ts && prettier --write src/lib/database.types.ts"
+  },
+  "dependencies": {
+    "@date-fns/tz": "^1.5.0",
+    "@fontsource/cinzel": "^5.3.0",
+    "@fontsource/great-vibes": "^5.3.0",
+    "@fontsource/montserrat": "^5.3.0",
+    "@hookform/resolvers": "^5.9.1",
+    "@supabase/supabase-js": "^2.117.3",
+    "date-fns": "^4.4.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-hook-form": "^7.89.0",
+    "react-router-dom": "^7.18.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "jsdom": "^30.1.2",
+    "oxlint": "^1.81.0",
+    "prettier": "^3.9.10",
+    "sharp": "^0.35.5",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.3"
+  }
+}

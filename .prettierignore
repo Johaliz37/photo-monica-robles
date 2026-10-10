@@ -1,0 +1,7 @@
+dist
+node_modules
+images
+public
+*.pdf
+assets-src
+src/content/images.generated.ts
