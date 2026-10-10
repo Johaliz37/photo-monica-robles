@@ -11,7 +11,7 @@ Fuente de verdad del contenido: [paquetes_navidad_2026.pdf](paquetes_navidad_202
 
 ## Reglas de producto (no negociables en el MVP)
 - **Sin CMS ni opciones configurables** por la UI. Para cambiar paquetes o textos se edita `src/content/*.ts` y se redepliega.
-- **Coste 0 €**: solo planes gratuitos (Cloudflare Pages, Supabase Free, GitHub Actions). No añadir servicios de pago.
+- **Coste 0 €**: solo planes gratuitos (Cloudflare Workers, Supabase Free, GitHub Actions). No añadir servicios de pago.
 - **Sin notificaciones** (ni email ni WhatsApp). Mónica entra en `/admin` para ver las reservas nuevas.
 - **Pago del adelanto (20 €) fuera de la web** (Bizum o transferencia). El cliente **debe subir el comprobante** para enviar la reserva.
 - Ciclo de vida de una reserva: `pendiente` → `aceptada` | `rechazada`. Una reserva rechazada **libera el hueco**.
@@ -25,7 +25,7 @@ Fuente de verdad del contenido: [paquetes_navidad_2026.pdf](paquetes_navidad_202
 - **Fechas**: `date-fns` + `@date-fns/tz` (`TZDate`, siempre en `Europe/Madrid`).
 - **Backend**: Supabase (Postgres, Auth, Storage), región UE. No hay servidor propio: la lógica crítica vive en **funciones SQL (RPC)** y en **RLS**.
 - **Tests**: Vitest (unitarios de la lógica pura).
-- **Hosting**: Cloudflare Pages (SPA con `public/_redirects`).
+- **Hosting**: Cloudflare Workers con static assets (`wrangler.toml`, `not_found_handling = "single-page-application"`). No usar `public/_redirects` para el fallback SPA: Workers lo rechaza.
 - **Keepalive**: GitHub Actions con un cron semanal (el plan Free de Supabase se pausa tras 7 días sin actividad).
 
 ## Reglas de seguridad
@@ -39,7 +39,7 @@ Fuente de verdad del contenido: [paquetes_navidad_2026.pdf](paquetes_navidad_202
 
 ## Estructura
 ```
-public/_redirects            SPA fallback
+wrangler.toml                Worker de static assets (SPA fallback)
 public/img/                  imágenes WebP optimizadas (generadas en la fase 2)
 scripts/                     utilidades de build (extracción y optimización de imágenes)
 src/content/                 datos estáticos: packages.ts, site.ts

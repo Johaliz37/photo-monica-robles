@@ -28,6 +28,8 @@ Publicar la SPA en **Cloudflare Pages** con despliegue automático desde GitHub,
 
 Nota: si Cloudflare recomienda "Workers con static assets" en lugar de Pages, también es gratis. En ese caso hay que configurar `not_found_handling = "single-page-application"` en `wrangler.toml`.
 
+**Decisión final (10/10/2026)**: se despliega como **Worker con static assets** ([wrangler.toml](../../wrangler.toml)). Se eliminó `public/_redirects`, porque Workers rechaza `/* /index.html 200` (error 100324, "Infinite loop detected"). Las `VITE_*` van en las variables de **build** del Worker. Ver el README.
+
 ### 7.3 Supabase en producción
 - **Authentication → URL Configuration**: `Site URL` = la URL de `pages.dev` (o del dominio). Añadirla a `Redirect URLs`.
 - Revisar que el **"Allow new users to sign up"** sigue desactivado.

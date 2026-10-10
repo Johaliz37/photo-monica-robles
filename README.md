@@ -12,27 +12,26 @@ No hay avisos por email ni WhatsApp: conviene entrar al panel cada día durante 
 
 ## Despliegue
 
-Coste 0 €: Cloudflare Pages + Supabase Free + GitHub Actions. Cada push a `main` despliega a producción; cada rama genera un _preview deploy_ con su propia URL (útil para que Mónica revise cambios).
+Coste 0 €: Cloudflare Workers (static assets) + Supabase Free + GitHub Actions. Cada push a `main` despliega a producción; las demás ramas generan una _preview_ con su propia URL (útil para que Mónica revise cambios).
 
 ### GitHub
 
 - Repo **privado**. No se suben `.env.local`, `node_modules/`, `dist/` ni el PDF (ver `.gitignore`). `public/img/` **sí** se sube: Cloudflare no ejecuta `npm run images`.
 - **Settings → Secrets and variables → Actions**: `SUPABASE_URL` y `SUPABASE_ANON_KEY` (para el keepalive).
 
-### Cloudflare Pages
+### Cloudflare Workers (static assets)
 
-**Workers & Pages → Create → Pages → Connect to Git** → elegir el repo, con:
+**Workers & Pages → Create → Import a repository** → elegir el repo, con:
 
 | Ajuste                         | Valor                                                       |
 | ------------------------------ | ----------------------------------------------------------- |
-| Framework preset               | Vite (o ninguno)                                            |
 | Build command                  | `npm run build`                                             |
-| Output directory               | `dist`                                                      |
-| Variables (Production/Preview) | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL` |
+| Deploy command                 | `npx wrangler deploy`                                       |
+| Variables de **build**         | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL` |
 
-Node 24 se toma de `.nvmrc`. `VITE_SITE_URL` es la URL pública sin barra final: tras el primer deploy, poner la de `pages.dev` (o el dominio) y **redesplegar** (Deployments → … → Retry deployment), porque se inyecta en el build. `public/_redirects` (`/* /index.html 200`) permite recargar `/reservar` y `/admin`.
+La configuración del Worker está en [wrangler.toml](wrangler.toml): sirve `dist/` y, con `not_found_handling = "single-page-application"`, devuelve `index.html` en las rutas de la SPA, así que se puede recargar `/reservar` y `/admin`. **No** se usa `public/_redirects`: Workers rechaza la regla `/* /index.html 200` (error 100324, "Infinite loop detected").
 
-Si Cloudflare propone "Workers con static assets" en lugar de Pages, también es gratis; en ese caso hay que poner `not_found_handling = "single-page-application"` en `wrangler.toml`.
+Las `VITE_*` se inyectan al compilar, así que van en **Settings → Build → Variables and secrets**, no en las variables del Worker (esas son de runtime y Vite no las ve). Node 24 se toma de `.nvmrc`. `VITE_SITE_URL` es la URL pública sin barra final: tras el primer deploy, poner la de `workers.dev` (o el dominio) y volver a desplegar.
 
 ### Supabase (producción)
 
@@ -48,7 +47,7 @@ Supabase Free se pausa tras 7 días sin actividad. [.github/workflows/keepalive.
 
 ### Dominio propio (opcional, ~10 €/año)
 
-Comprarlo (p. ej. en Cloudflare Registrar), añadirlo en **Pages → Custom domains** (el SSL es automático), actualizar el `Site URL` de Supabase y `VITE_SITE_URL`, y redesplegar.
+Comprarlo (p. ej. en Cloudflare Registrar), añadirlo en el Worker en **Settings → Domains & Routes → Add → Custom domain** (el SSL es automático), actualizar el `Site URL` de Supabase y `VITE_SITE_URL`, y redesplegar.
 
 ### Copias de seguridad
 
@@ -95,7 +94,7 @@ No hay "¿Olvidaste tu contraseña?" en el MVP. Se cambia desde el dashboard de 
 ## Textos legales y SEO
 
 - Los datos del titular (nombre, NIF, email y dirección opcional) están en `OWNER`, en [src/content/legal.ts](src/content/legal.ts). Mientras valgan `'TODO'`, `/privacidad` y `/aviso-legal` muestran "[pendiente]".
-- `VITE_SITE_URL` (URL pública, sin barra final) hace que el build genere `sitemap.xml` y URLs absolutas en `og:image`, que WhatsApp necesita para mostrar la tarjeta. Defínela en Cloudflare Pages y vuelve a desplegar si cambia el dominio. `robots.txt` (con `Disallow: /admin`) se genera siempre.
+- `VITE_SITE_URL` (URL pública, sin barra final) hace que el build genere `sitemap.xml` y URLs absolutas en `og:image`, que WhatsApp necesita para mostrar la tarjeta. Defínela en las variables de build de Cloudflare y vuelve a desplegar si cambia el dominio. `robots.txt` (con `Disallow: /admin`) se genera siempre.
 
 ## Retención de datos (enero de 2027)
 
