@@ -11,6 +11,13 @@
   --color-ink: #4a3b2a;
   --color-xmas-red: #a8262b;
   --color-pine: #2f4a34;
+  /* Colores del logo: fondo azul petróleo y verde de la hoja */
+  --color-teal: #154551;
+  --color-leaf: #b5ca49;
+  /* Amarillo del paquete 1: claro para fondos (texto ink encima, 5,5:1) y oscuro para
+     texto grande sobre crema (4,2:1) */
+  --color-honey: #e0b324;
+  --color-honey-dark: #8f6b00;
 
   --font-display: 'Cinzel', 'Cormorant Garamond', serif;
   --font-script: 'Great Vibes', cursive;
@@ -29,8 +36,111 @@
   }
 }
 
+/* Adornos que caen como nieve (componente Snowfall) */
+@keyframes snowfall-fall {
+  from {
+    transform: translateY(-10vh) rotate(0deg);
+  }
+  to {
+    transform: translateY(110vh) rotate(360deg);
+  }
+}
+@keyframes snowfall-sway {
+  from {
+    transform: translateX(-12px);
+  }
+  to {
+    transform: translateX(12px);
+  }
+}
+.snowfall-flake {
+  animation: snowfall-fall linear infinite;
+  will-change: transform;
+}
+.snowfall-sway {
+  animation: snowfall-sway ease-in-out infinite alternate;
+}
+
+/* Trineo de Papá Noel: cruza la pantalla en ~12 s y luego desaparece hasta la siguiente vuelta */
+@keyframes snowfall-sleigh {
+  0% {
+    transform: translate(-200px, 4vh);
+    opacity: 0;
+  }
+  1% {
+    opacity: 0.16;
+  }
+  12% {
+    transform: translate(45vw, 0);
+  }
+  23% {
+    opacity: 0.16;
+  }
+  24%,
+  100% {
+    transform: translate(calc(100vw + 40px), -6vh);
+    opacity: 0;
+  }
+}
+@keyframes snowfall-bob {
+  from {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+  to {
+    transform: translateY(4px) rotate(1deg);
+  }
+}
+.snowfall-sleigh {
+  opacity: 0;
+  animation: snowfall-sleigh 50s linear 6s infinite;
+}
+.snowfall-bob {
+  animation: snowfall-bob 1.6s ease-in-out infinite alternate;
+}
+
+/* Estrella fugaz: un trazo dorado que cruza en diagonal en menos de un segundo */
+@keyframes snowfall-shooting-star {
+  0% {
+    transform: rotate(25deg) translateX(0);
+    opacity: 0;
+  }
+  1% {
+    opacity: 0.5;
+  }
+  4%,
+  100% {
+    transform: rotate(25deg) translateX(260px);
+    opacity: 0;
+  }
+}
+.snowfall-shooting-star {
+  width: 90px;
+  height: 1.5px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, transparent, var(--color-gold-light));
+  opacity: 0;
+  animation-name: snowfall-shooting-star;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+.snowfall-shooting-star::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--color-gold-light);
+  box-shadow: 0 0 6px 2px var(--color-gold-light);
+  transform: translateY(-50%);
+}
+
 /* Sin animaciones para quien lo pide en su sistema */
 @media (prefers-reduced-motion: reduce) {
+  .snowfall {
+    display: none;
+  }
   html {
     scroll-behavior: auto;
   }

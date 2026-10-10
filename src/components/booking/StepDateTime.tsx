@@ -6,9 +6,9 @@ import { fetchAvailability, type Availability } from '@/lib/api'
 import { dayKey, monthKey } from '@/lib/dates'
 import { errorMessage } from '@/lib/errors'
 import { getStartTimes, groupByMadridDay } from '@/lib/slots'
+import DayTimeline from './DayTimeline'
 import MonthCalendar from './MonthCalendar'
 import { StepNav } from './Stepper'
-import TimeSlotList from './TimeSlotList'
 
 const REFRESH_MS = 60_000
 const SEASON_FROM = new Date(SEASON.from)
@@ -103,6 +103,12 @@ export default function StepDateTime({
 
   return (
     <div>
+      <StepNav
+        onBack={onBack}
+        onNext={onNext}
+        nextDisabled={!startsAt}
+        hint={startsAt ? undefined : 'Elige día y hora para continuar.'}
+      />
       {notice && (
         <p role="alert" className="mb-6 rounded-sm bg-xmas-red/10 p-4 text-sm text-xmas-red">
           {notice}
@@ -144,15 +150,19 @@ export default function StepDateTime({
             onSelectDay={setSelectedDay}
           />
           <div aria-live="polite">
-            {selectedDay ? (
+            {selectedDay && data ? (
               <>
                 <p className="mb-3 text-sm">
-                  Sesión de <strong className="font-semibold">{durationMin} min</strong>. Elige la
-                  hora de inicio:
+                  Pasa el cursor por los huecos libres para ver la franja y pulsa para elegirla:
                 </p>
-                <TimeSlotList
+                <DayTimeline
+                  day={selectedDay}
+                  windows={data.windows}
+                  busy={data.busy}
                   slots={byDay.get(selectedDay) ?? []}
                   durationMin={durationMin}
+                  bufferMin={data.config.bufferMin}
+                  stepMin={data.config.stepMin}
                   selected={startsAt}
                   onSelect={onSelect}
                 />
@@ -165,13 +175,6 @@ export default function StepDateTime({
           </div>
         </div>
       )}
-
-      <StepNav
-        onBack={onBack}
-        onNext={onNext}
-        nextDisabled={!startsAt}
-        hint={startsAt ? undefined : 'Elige día y hora para continuar.'}
-      />
     </div>
   )
 }

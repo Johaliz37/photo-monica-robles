@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useBlocker, useSearchParams } from 'react-router-dom'
+import ConfirmDialog from '@/components/admin/ConfirmDialog'
 import { EMPTY_CLIENT, type ClientData } from '@/components/booking/clientSchema'
 import StepClient from '@/components/booking/StepClient'
 import StepDateTime from '@/components/booking/StepDateTime'
 import StepDone from '@/components/booking/StepDone'
 import StepPackage from '@/components/booking/StepPackage'
 import StepPayment from '@/components/booking/StepPayment'
+import { StepContext } from '@/components/booking/stepContext'
 import Stepper from '@/components/booking/Stepper'
 import { findPackage, type PackageCode } from '@/content/packages'
 import { createBooking } from '@/lib/api'
@@ -152,6 +154,13 @@ export default function Booking() {
 
   useEffect(() => saveDraft(state), [state])
 
+  // Con la reserva a medias (pasos 2 a 4), salir a otra página pide confirmación
+  const inProgress = state.step >= 2 && state.step <= 4
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      inProgress && currentLocation.pathname !== nextLocation.pathname,
+  )
+
   // Al cambiar de paso: arriba del todo y foco en el título (lectores de pantalla)
   useEffect(() => {
     if (firstRender.current) {
@@ -207,70 +216,87 @@ export default function Booking() {
       </h1>
       <div className="mx-auto mt-4 mb-10 h-px w-24 bg-gold-light" />
 
-      <Stepper step={state.step} total={TOTAL_STEPS} label={STEP_TITLES[state.step]} />
-
-      <h2
-        ref={headingRef}
-        tabIndex={-1}
-        className="mb-6 font-display text-xl tracking-[0.15em] text-gold-dark outline-none"
+      {/* Cada paso pinta su barra (progreso + Atrás/Siguiente) con StepNav; el 5 no tiene botones */}
+      <StepContext.Provider
+        value={{ step: state.step, total: TOTAL_STEPS, title: STEP_TITLES[state.step], headingRef }}
       >
-        {STEP_TITLES[state.step]}
-      </h2>
+        {state.step === 5 && (
+          <div className="mb-6">
+            <Stepper />
+          </div>
+        )}
 
-      {state.step === 1 && (
-        <StepPackage
-          pkg={pkg}
-          baby={state.baby}
-          now={now}
-          onPackage={(code) => dispatch({ type: 'package', code })}
-          onBaby={(baby) => dispatch({ type: 'baby', baby })}
-          onNext={() => go(2)}
-        />
-      )}
+        {state.step === 1 && (
+          <StepPackage
+            pkg={pkg}
+            baby={state.baby}
+            now={now}
+            onPackage={(code) => dispatch({ type: 'package', code })}
+            onBaby={(baby) => dispatch({ type: 'baby', baby })}
+            onNext={() => go(2)}
+          />
+        )}
 
-      {state.step === 2 && pkg && (
-        <StepDateTime
-          pkg={pkg}
-          baby={state.baby}
-          startsAt={state.startsAt}
-          notice={state.notice}
-          onSelect={selectStart}
-          onBack={() => go(1)}
-          onNext={() => go(3)}
-        />
-      )}
+        {state.step === 2 && pkg && (
+          <StepDateTime
+            pkg={pkg}
+            baby={state.baby}
+            startsAt={state.startsAt}
+            notice={state.notice}
+            onSelect={selectStart}
+            onBack={() => go(1)}
+            onNext={() => go(3)}
+          />
+        )}
 
-      {state.step === 3 && (
-        <StepClient
-          defaultValues={state.client ?? EMPTY_CLIENT}
-          onSubmit={(client) => dispatch({ type: 'client', client, advance: true })}
-          onBack={(client) => dispatch({ type: 'client', client, advance: false })}
-        />
-      )}
+        {state.step === 3 && (
+          <StepClient
+            defaultValues={state.client ?? EMPTY_CLIENT}
+            onSubmit={(client) => dispatch({ type: 'client', client, advance: true })}
+            onBack={(client) => dispatch({ type: 'client', client, advance: false })}
+          />
+        )}
 
-      {state.step === 4 && pkg && state.startsAt && state.client && (
-        <StepPayment
-          pkg={pkg}
-          baby={state.baby}
-          startsAt={state.startsAt}
-          clientName={state.client.name}
-          now={now}
-          receiptPath={state.receiptPath}
-          onReceipt={setReceipt}
-          onBack={() => go(3)}
-          onSubmit={submit}
-        />
-      )}
+        {state.step === 4 && pkg && state.startsAt && state.client && (
+          <StepPayment
+            pkg={pkg}
+            baby={state.baby}
+            startsAt={state.startsAt}
+            clientName={state.client.name}
+            now={now}
+            receiptPath={state.receiptPath}
+            onReceipt={setReceipt}
+            onBack={() => go(3)}
+            onSubmit={submit}
+          />
+        )}
 
-      {state.step === 5 && pkg && state.startsAt && state.bookingId && (
-        <StepDone
-          bookingId={state.bookingId}
-          pkg={pkg}
-          baby={state.baby}
-          startsAt={state.startsAt}
-          now={now}
-        />
-      )}
+        {state.step === 5 && pkg && state.startsAt && state.bookingId && (
+          <StepDone
+            bookingId={state.bookingId}
+            pkg={pkg}
+            baby={state.baby}
+            startsAt={state.startsAt}
+            now={now}
+          />
+        )}
+      </StepContext.Provider>
+
+      <ConfirmDialog
+        open={blocker.state === 'blocked'}
+        title="¿Salir de la reserva?"
+        confirmLabel="Salir"
+        cancelLabel="Seguir reservando"
+        tone="danger"
+        onConfirm={() => blocker.proceed?.()}
+        onCancel={() => blocker.reset?.()}
+      >
+        <p>Tu reserva todavía no se ha enviado y el hueco no queda guardado.</p>
+        <p>
+          Si vuelves a «Reservar» sin cerrar esta pestaña, podrás seguir donde lo dejaste, pero la
+          hora elegida puede haberla reservado otra persona.
+        </p>
+      </ConfirmDialog>
     </section>
   )
 }

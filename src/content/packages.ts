@@ -5,6 +5,8 @@ export type PackageCode = 'P1' | 'P2' | 'P3'
 export interface Package {
   code: PackageCode
   number: '01' | '02' | '03'
+  /** Nombre comercial, fácil de recordar para el cliente. */
+  name: string
   durationMin: number
   priceCents: number
   presalePriceCents: number
@@ -18,6 +20,7 @@ export const PACKAGES: Package[] = [
   {
     code: 'P1',
     number: '01',
+    name: 'Cajita de Recuerdos',
     durationMin: 30,
     priceCents: 8500,
     presalePriceCents: 7650,
@@ -35,6 +38,7 @@ export const PACKAGES: Package[] = [
   {
     code: 'P2',
     number: '02',
+    name: 'Kit Navideño',
     durationMin: 30,
     priceCents: 14500,
     presalePriceCents: 13050,
@@ -54,6 +58,7 @@ export const PACKAGES: Package[] = [
   {
     code: 'P3',
     number: '03',
+    name: 'Álbum de Navidad',
     durationMin: 45,
     priceCents: 19500,
     presalePriceCents: 17550,

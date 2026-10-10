@@ -20,7 +20,7 @@ export default function BookingSummary({ pkg, baby, startsAt, now }: Props) {
     <div className="rounded-sm bg-white/50 p-5 ring-1 ring-gold-light/40">
       <dl className="space-y-2 text-sm">
         <Row term="Paquete">
-          Paquete {pkg.number} · {pkg.durationMin} min
+          Paquete {pkg.number} «{pkg.name}» · {pkg.durationMin} min
         </Row>
         {baby && (
           <Row term="Ampliación bebé">

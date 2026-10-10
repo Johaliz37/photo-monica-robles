@@ -36,6 +36,7 @@ export default function StepClient({ defaultValues, onSubmit, onBack }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      <StepNav onBack={() => onBack(getValues())} />
       <div>
         <label htmlFor="client-name" className="text-sm font-normal">
           Nombre y apellidos
@@ -117,8 +118,6 @@ export default function StepClient({ defaultValues, onSubmit, onBack }: Props) {
         </label>
         {error('consent')}
       </div>
-
-      <StepNav onBack={() => onBack(getValues())} />
     </form>
   )
 }

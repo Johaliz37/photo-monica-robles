@@ -6,7 +6,7 @@ export function PackageLabel({ booking }: { booking: Booking }) {
   const pkg = findPackage(booking.package_code)
   return (
     <span className="whitespace-nowrap">
-      {pkg ? `Paquete ${pkg.number}` : booking.package_code}
+      {pkg ? `Paquete ${pkg.number} · ${pkg.name}` : booking.package_code}
       {booking.baby_extension && (
         <span title="Con ampliación para bebé" className="ml-1">
           <span aria-hidden="true">👶</span>

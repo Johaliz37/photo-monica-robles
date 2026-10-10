@@ -55,6 +55,19 @@ export default function StepPayment({
 
   return (
     <div className="space-y-6">
+      <StepNav
+        onBack={onBack}
+        onNext={() => void handleSubmit()}
+        nextLabel={submitting ? 'Enviando…' : 'Enviar reserva'}
+        nextDisabled={!receiptPath || submitting}
+        hint={receiptPath ? undefined : 'Sube el comprobante para poder enviar la reserva.'}
+      />
+      {/* Junto a los botones: es donde mira quien acaba de pulsar «Enviar reserva» */}
+      {error && (
+        <p role="alert" className="rounded-sm bg-xmas-red/10 p-4 text-sm text-xmas-red">
+          {error}
+        </p>
+      )}
       <section
         aria-labelledby="pago-adelanto"
         className="rounded-sm bg-cream-dark p-5 ring-1 ring-gold-light/50"
@@ -111,20 +124,6 @@ export default function StepPayment({
           />
         </label>
       </div>
-
-      {error && (
-        <p role="alert" className="rounded-sm bg-xmas-red/10 p-4 text-sm text-xmas-red">
-          {error}
-        </p>
-      )}
-
-      <StepNav
-        onBack={onBack}
-        onNext={() => void handleSubmit()}
-        nextLabel={submitting ? 'Enviando…' : 'Enviar reserva'}
-        nextDisabled={!receiptPath || submitting}
-        hint={receiptPath ? undefined : 'Sube el comprobante para poder enviar la reserva.'}
-      />
     </div>
   )
 }

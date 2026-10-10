@@ -1,3 +1,4 @@
+import ResponsiveImage from '@/components/ResponsiveImage'
 import SectionTitle from '@/components/SectionTitle'
 import { EXTRAS } from '@/content/site'
 
@@ -24,24 +25,32 @@ function PhotosIcon() {
 export default function Extras() {
   return (
     <section aria-labelledby="adicionales" className="bg-cream-dark/50 px-4 py-16">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-5xl">
         <SectionTitle id="adicionales">Adicionales</SectionTitle>
-        <ul className="space-y-4">
-          {EXTRAS.map((extra) => (
-            <li
-              key={extra.text}
-              className="flex items-center gap-4 rounded-sm bg-cream p-4 shadow-sm sm:gap-6 sm:p-5"
-            >
-              <span className="flex size-14 shrink-0 items-center justify-center rounded-full border border-gold-light">
-                <PhotosIcon />
-              </span>
-              <p className="flex-1 text-sm tracking-wide">{extra.text}</p>
-              <p className="shrink-0 border-l border-gold-light pl-4 font-display text-lg text-gold-dark sm:pl-6 sm:text-xl">
-                {extra.price}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <div className="grid items-center gap-8 md:grid-cols-[2fr_3fr]">
+          <ResponsiveImage
+            name="studio-1"
+            alt="Niño pequeño riendo junto a un reno dorado y árboles de Navidad en el estudio"
+            sizes="(min-width: 1024px) 400px, (min-width: 768px) 40vw, 100vw"
+            className="mx-auto aspect-[3/4] w-full max-w-sm rounded-sm object-cover"
+          />
+          <ul className="space-y-4">
+            {EXTRAS.map((extra) => (
+              <li
+                key={extra.text}
+                className="flex items-center gap-4 rounded-sm bg-cream p-4 shadow-sm sm:gap-6 sm:p-5"
+              >
+                <span className="flex size-14 shrink-0 items-center justify-center rounded-full border border-gold-light">
+                  <PhotosIcon />
+                </span>
+                <p className="flex-1 text-sm tracking-wide">{extra.text}</p>
+                <p className="shrink-0 border-l border-gold-light pl-4 font-display text-lg text-gold-dark sm:pl-6 sm:text-xl">
+                  {extra.price}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   )

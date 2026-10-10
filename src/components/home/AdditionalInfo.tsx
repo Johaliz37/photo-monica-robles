@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import Divider from '@/components/Divider'
+import ResponsiveImage from '@/components/ResponsiveImage'
 import SectionTitle from '@/components/SectionTitle'
 import { INFO } from '@/content/site'
 
@@ -10,6 +11,12 @@ export default function AdditionalInfo() {
         <SectionTitle id="informacion" script="Adicional">
           Información
         </SectionTitle>
+        <ResponsiveImage
+          name="studio-2"
+          alt="Niña con jersey de corazones y falda de tul roja sentada entre regalos en el estudio navideño"
+          sizes="(min-width: 672px) 672px, 100vw"
+          className="mb-10 aspect-[3/2] w-full rounded-sm object-cover"
+        />
         {INFO.map((block, i) => (
           <Fragment key={block.title}>
             {i > 0 && <Divider className="my-8" />}

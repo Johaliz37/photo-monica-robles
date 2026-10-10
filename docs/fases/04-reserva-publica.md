@@ -72,7 +72,7 @@ Resumen: duración total y precio total.
 - `MonthCalendar` (componente propio, sin librería): navegación por meses, lunes como primer día y locale `es`.
   - Los días con al menos una hora válida se resaltan y son clicables; el resto aparece deshabilitado.
   - Se navega solo entre los meses con franjas (de octubre a diciembre de 2026).
-- Al elegir un día, `TimeSlotList` muestra botones con las horas ("10:00", "10:15"…) y la hora de fin ("10:00 – 10:45").
+- Al elegir un día, `DayTimeline` lo muestra como la vista de día de Google Calendar: rejilla horaria con las sesiones ya reservadas (deshabilitadas) y los huecos libres. Al pasar el cursor por un hueco libre se dibuja la franja ("10:00 – 10:45"); en los no disponibles aparece el icono de prohibido.
 - Al cambiar de paquete o de opción bebé, se recalculan las horas y, si la hora elegida deja de ser válida, se borra.
 - Se recarga la disponibilidad al entrar al paso y cada 60 s mientras el usuario está en él.
 - Estado vacío: "De momento no hay huecos disponibles. Síguenos en Instagram para enterarte de nuevas fechas."
@@ -111,7 +111,7 @@ Debajo, el código de reserva `id.slice(0, 8).toUpperCase()` y el resumen comple
 Botón "Volver al inicio". Limpiar el borrador de `sessionStorage`.
 
 ## Archivos creados
-`src/lib/{slots,api,errors}.ts`, `src/lib/slots.test.ts`, `src/pages/Booking.tsx`, `src/components/booking/{StepPackage,StepDateTime,StepClient,StepPayment,StepDone,MonthCalendar,TimeSlotList,ReceiptUpload,BookingSummary,Stepper}.tsx`.
+`src/lib/{slots,api,errors}.ts`, `src/lib/slots.test.ts`, `src/pages/Booking.tsx`, `src/components/booking/{StepPackage,StepDateTime,StepClient,StepPayment,StepDone,MonthCalendar,DayTimeline,ReceiptUpload,BookingSummary,Stepper}.tsx`.
 
 ## Criterios de aceptación
 - Las horas mostradas coinciden siempre con lo que acepta `create_booking`.

@@ -1,20 +1,26 @@
 import { Link, Outlet } from 'react-router-dom'
+import ResponsiveImage from '@/components/ResponsiveImage'
+import Snowfall from '@/components/Snowfall'
 import { CONTACT } from '@/content/site'
 
 export default function Layout() {
   return (
     <div className="flex min-h-svh flex-col">
-      <header className="border-b border-gold-light/50">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
-          <Link
-            to="/"
-            className="font-display text-base whitespace-nowrap tracking-[0.2em] text-gold-dark sm:text-xl sm:tracking-[0.25em]"
-          >
-            MÓNICA ROBLES
+      <Snowfall />
+      <header className="bg-teal">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-2">
+          <Link to="/" className="shrink-0">
+            <ResponsiveImage
+              name="logo"
+              alt="Mónica Robles Fotografía"
+              priority
+              sizes="(min-width: 640px) 210px, 140px"
+              className="h-auto w-[140px] sm:w-[210px]"
+            />
           </Link>
           <Link
             to="/reservar"
-            className="rounded-full bg-gold px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-cream transition hover:bg-ink"
+            className="rounded-full bg-leaf px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-teal transition hover:bg-cream"
           >
             Reservar
           </Link>

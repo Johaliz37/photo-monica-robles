@@ -19,6 +19,8 @@ const QUALITY = 80
 
 /** @type {{ name: string, source: string, crop?: { left: number, top: number, width: number, height: number } }[]} */
 const IMAGES = [
+  // Logo de la cabecera (fondo azul petróleo #154551, igual que --color-teal)
+  { name: 'logo', source: join(root, 'images', 'Logo.png') },
   // Hero: trineo sin texto (zona inferior de la portada, bajo la insignia del 10 %)
   { name: 'hero', source: pdfPage(1), crop: { left: 0, top: 870, width: 1055, height: 495 } },
   { name: 'pkg1', source: photo('04.14.38') },

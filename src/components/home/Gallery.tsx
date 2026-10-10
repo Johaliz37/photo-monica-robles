@@ -31,18 +31,6 @@ export default function Gallery() {
           sizes="(min-width: 768px) 50vw, 100vw"
           className="aspect-[3/4] w-full rounded-sm object-cover object-[center_45%]"
         />
-        <ResponsiveImage
-          name="studio-1"
-          alt="Niño pequeño riendo junto a un reno dorado y árboles de Navidad en el estudio"
-          sizes="(min-width: 768px) 50vw, 100vw"
-          className="aspect-[3/4] h-full w-full rounded-sm object-cover"
-        />
-        <ResponsiveImage
-          name="studio-2"
-          alt="Niña con jersey de corazones y falda de tul roja sentada entre regalos en el estudio navideño"
-          sizes="(min-width: 768px) 50vw, 100vw"
-          className="aspect-[3/4] h-full w-full rounded-sm object-cover"
-        />
       </div>
     </section>
   )

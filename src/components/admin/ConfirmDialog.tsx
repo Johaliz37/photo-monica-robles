@@ -5,6 +5,7 @@ type Props = {
   open: boolean
   title: string
   confirmLabel: string
+  cancelLabel?: string
   /** "danger" pinta el botón de confirmar en rojo. */
   tone?: 'primary' | 'danger'
   busy?: boolean
@@ -18,6 +19,7 @@ export default function ConfirmDialog({
   open,
   title,
   confirmLabel,
+  cancelLabel = 'Volver',
   tone = 'primary',
   busy = false,
   error,
@@ -62,7 +64,7 @@ export default function ConfirmDialog({
       )}
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <button type="button" onClick={onCancel} disabled={busy} className={BUTTON_SECONDARY}>
-          Volver
+          {cancelLabel}
         </button>
         <button type="button" onClick={onConfirm} disabled={busy} className={confirmClass}>
           {busy ? 'Guardando…' : confirmLabel}

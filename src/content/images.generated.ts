@@ -10,6 +10,20 @@ export interface ImageAsset {
 }
 
 export const IMAGES = {
+  "logo": {
+    "width": 795,
+    "height": 304,
+    "srcSet": [
+      {
+        "src": "/img/logo-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/img/logo-795.webp",
+        "width": 795
+      }
+    ]
+  },
   "hero": {
     "width": 1055,
     "height": 495,
