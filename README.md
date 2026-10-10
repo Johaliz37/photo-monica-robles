@@ -1,6 +1,6 @@
 # Mónica Robles Fotografía · Navidad 2026
 
-SPA para vender los paquetes de Navidad 2026 y gestionar las reservas. Ver [CLAUDE.md](CLAUDE.md) para el stack, los comandos y las reglas del proyecto, y [docs/fases/](docs/fases/) para el plan.
+SPA para vender los paquetes de Navidad 2026 y gestionar las reservas. Ver [CLAUDE.md](CLAUDE.md) para el stack, los comandos y las reglas del proyecto, y [docs/fases/](docs/fases/) para el plan..
 
 ## Uso diario (para Mónica)
 
