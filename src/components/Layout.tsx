@@ -1,9 +1,12 @@
 import { Link, Outlet } from 'react-router-dom'
+import ContactLinks from '@/components/ContactLinks'
 import ResponsiveImage from '@/components/ResponsiveImage'
 import Snowfall from '@/components/Snowfall'
-import { CONTACT } from '@/content/site'
+import WhatsAppWidget from '@/components/WhatsAppWidget'
+import { usePublicProfile } from '@/lib/publicProfile'
 
 export default function Layout() {
+  const profile = usePublicProfile()
   return (
     <div className="flex min-h-svh flex-col">
       <Snowfall />
@@ -33,14 +36,11 @@ export default function Layout() {
 
       <footer className="bg-cream-dark">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 py-8 text-xs uppercase tracking-[0.2em] sm:flex-row sm:justify-between">
-          <a
-            href={CONTACT.instagramUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-gold-dark"
-          >
-            @{CONTACT.instagram}
-          </a>
+          <ContactLinks
+            profile={profile}
+            variant="icons"
+            className="-my-2 flex flex-wrap justify-center gap-1 text-ink"
+          />
           <nav className="flex gap-6">
             <Link to="/privacidad" className="hover:text-gold-dark">
               Privacidad
@@ -51,6 +51,8 @@ export default function Layout() {
           </nav>
         </div>
       </footer>
+
+      <WhatsAppWidget phone={profile.phone} />
     </div>
   )
 }

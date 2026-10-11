@@ -110,7 +110,9 @@ export const ESPADILLA = {
   ] satisfies EspadillaCard[],
 }
 
-// TODO: pendiente de Mónica (número de Bizum, IBAN y titular)
+// TODO: pendiente de Mónica (IBAN y titular).
+// El Bizum y las redes se editan en /admin/perfil (tabla profile); los valores de aquí
+// solo se usan mientras carga el perfil o si no se puede leer (DEFAULT_PROFILE).
 export const PAYMENT = {
   bizum: 'TODO',
   iban: 'TODO',
@@ -122,3 +124,10 @@ export const CONTACT = {
   instagram: 'monicarobles_fotografia',
   instagramUrl: 'https://www.instagram.com/monicarobles_fotografia/',
 }
+
+/** Consultas rápidas del botón flotante de WhatsApp: el texto se envía tal cual como mensaje. */
+export const WHATSAPP_QUESTIONS: string[] = [
+  'Hola, Mónica. Me gustaría saber qué días y horas tienes libres para la sesión de Navidad.',
+  'Hola, Mónica. Tengo dudas sobre los paquetes de Navidad 2026, ¿me ayudas a elegir?',
+  'Hola, Mónica. Tengo una consulta sobre mi reserva.',
+]

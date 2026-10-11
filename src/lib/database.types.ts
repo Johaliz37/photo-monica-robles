@@ -163,6 +163,51 @@ export type Database = {
         }
         Relationships: []
       }
+      profile: {
+        Row: {
+          about: string
+          bizum: string
+          email: string
+          facebook: string
+          full_name: string
+          id: boolean
+          instagram: string
+          phone: string
+          photo_path: string
+          show_about: boolean
+          tiktok: string
+          updated_at: string
+        }
+        Insert: {
+          about?: string
+          bizum?: string
+          email?: string
+          facebook?: string
+          full_name?: string
+          id?: boolean
+          instagram?: string
+          phone?: string
+          photo_path?: string
+          show_about?: boolean
+          tiktok?: string
+          updated_at?: string
+        }
+        Update: {
+          about?: string
+          bizum?: string
+          email?: string
+          facebook?: string
+          full_name?: string
+          id?: boolean
+          instagram?: string
+          phone?: string
+          photo_path?: string
+          show_about?: boolean
+          tiktok?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -192,6 +237,21 @@ export type Database = {
         Returns: string
       }
       get_availability: { Args: { p_from: string; p_to: string }; Returns: Json }
+      get_public_profile: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          about: string
+          bizum: string
+          email: string
+          facebook: string
+          full_name: string
+          instagram: string
+          phone: string
+          photo_path: string
+          show_about: boolean
+          tiktok: string
+        }[]
+      }
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
       review_booking: {
         Args: {

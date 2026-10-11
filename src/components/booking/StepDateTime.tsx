@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CalendarSkeleton } from '@/components/Skeleton'
 import type { Package } from '@/content/packages'
-import { CONTACT, SEASON } from '@/content/site'
+import { SEASON } from '@/content/site'
 import { fetchAvailability, type Availability } from '@/lib/api'
 import { dayKey, monthKey } from '@/lib/dates'
 import { errorMessage } from '@/lib/errors'
+import { instagramUrl } from '@/lib/profile'
+import { usePublicProfile } from '@/lib/publicProfile'
 import { getStartTimes, groupByMadridDay } from '@/lib/slots'
 import DayTimeline from './DayTimeline'
 import MonthCalendar from './MonthCalendar'
@@ -35,6 +37,7 @@ export default function StepDateTime({
   onNext,
 }: Props) {
   // `loadedAt` es el "ahora" con el que se filtran las horas: se renueva en cada recarga
+  const profile = usePublicProfile()
   const [data, setData] = useState<(Availability & { loadedAt: Date }) | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [selectedDay, setSelectedDay] = useState<string | null>(() =>
@@ -125,16 +128,21 @@ export default function StepDateTime({
 
       {empty && (
         <p className="rounded-sm bg-white/50 p-6 text-center text-sm ring-1 ring-gold-light/50">
-          De momento no hay huecos disponibles.{' '}
-          <a
-            href={CONTACT.instagramUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="font-normal text-gold-dark underline"
-          >
-            Síguenos en Instagram
-          </a>{' '}
-          para enterarte de nuevas fechas.
+          De momento no hay huecos disponibles.
+          {profile.instagram && (
+            <>
+              {' '}
+              <a
+                href={instagramUrl(profile.instagram)}
+                target="_blank"
+                rel="noreferrer"
+                className="font-normal text-gold-dark underline"
+              >
+                Síguenos en Instagram
+              </a>{' '}
+              para enterarte de nuevas fechas.
+            </>
+          )}
         </p>
       )}
 

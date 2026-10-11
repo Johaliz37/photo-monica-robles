@@ -75,6 +75,19 @@ export interface Agenda {
   bookings: Booking[]
 }
 
+/** Reservas activas (pendientes y aceptadas) que se solapan con [from, to), por hora de inicio. */
+export async function fetchActiveBookings(from: Date, to: Date): Promise<Booking[]> {
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('*')
+    .neq('status', 'rechazada')
+    .lt('starts_at', to.toISOString())
+    .gt('ends_at', from.toISOString())
+    .order('starts_at')
+  if (error) throw error
+  return data
+}
+
 export async function fetchAgenda(from: Date, to: Date): Promise<Agenda> {
   const [windows, bookings] = await Promise.all([
     supabase
@@ -83,17 +96,88 @@ export async function fetchAgenda(from: Date, to: Date): Promise<Agenda> {
       .lt('starts_at', to.toISOString())
       .gt('ends_at', from.toISOString())
       .order('starts_at'),
-    supabase
-      .from('bookings')
-      .select('*')
-      .neq('status', 'rechazada')
-      .lt('starts_at', to.toISOString())
-      .gt('ends_at', from.toISOString())
-      .order('starts_at'),
+    fetchActiveBookings(from, to),
   ])
   if (windows.error) throw windows.error
-  if (bookings.error) throw bookings.error
-  return { windows: windows.data, bookings: bookings.data }
+  return { windows: windows.data, bookings }
+}
+
+// ===== Perfil =====
+
+export type Profile = Tables<'profile'>
+export type ProfileInput = Omit<Profile, 'id' | 'updated_at'>
+
+export async function fetchProfile(): Promise<Profile | null> {
+  const { data, error } = await supabase.from('profile').select('*').eq('id', true).maybeSingle()
+  if (error) throw error
+  return data
+}
+
+export async function saveProfile(input: ProfileInput): Promise<Profile> {
+  const { data, error } = await supabase
+    .from('profile')
+    .upsert({ id: true, ...input, updated_at: new Date().toISOString() })
+    .select('*')
+    .single()
+  // check_violation: algún campo no cumple las restricciones de la tabla
+  if (error?.code === '23514') throw new AppError('INVALID_DATA')
+  if (error) throw error
+  return data
+}
+
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+export const PHOTO_ACCEPT = PHOTO_TYPES.join(',')
+const PHOTO_MAX_BYTES = 10 * 1024 * 1024
+const PHOTO_SIDE_PX = 800
+
+/** Recorta la imagen al centro en cuadrado de 800 px y la pasa a WebP (o JPEG si no hay WebP). */
+async function squarePhoto(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file)
+  const side = Math.min(bitmap.width, bitmap.height)
+  const out = Math.min(PHOTO_SIDE_PX, side)
+  const canvas = document.createElement('canvas')
+  canvas.width = out
+  canvas.height = out
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new AppError('PHOTO_TYPE')
+  ctx.drawImage(
+    bitmap,
+    (bitmap.width - side) / 2,
+    (bitmap.height - side) / 2,
+    side,
+    side,
+    0,
+    0,
+    out,
+    out,
+  )
+  bitmap.close()
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, 'image/webp', 0.85),
+  )
+  if (!blob) throw new AppError('PHOTO_TYPE')
+  return blob
+}
+
+/** Sube la foto de perfil al bucket público `avatars` y devuelve su nombre. */
+export async function uploadProfilePhoto(file: File): Promise<string> {
+  if (!PHOTO_TYPES.includes(file.type)) throw new AppError('PHOTO_TYPE')
+  if (file.size > PHOTO_MAX_BYTES) throw new AppError('PHOTO_TOO_BIG')
+
+  const body = await squarePhoto(file)
+  // Safari antiguo no codifica WebP y devuelve PNG
+  const ext = body.type === 'image/webp' ? 'webp' : body.type === 'image/jpeg' ? 'jpg' : 'png'
+  const name = `${crypto.randomUUID()}.${ext}`
+  const { data, error } = await supabase.storage
+    .from('avatars')
+    .upload(name, body, { upsert: false, contentType: body.type })
+  if (error) throw error
+  return data.path
+}
+
+/** Borra una foto del bucket `avatars`. Si falla, solo queda un archivo huérfano. */
+export async function deleteProfilePhoto(path: string): Promise<void> {
+  await supabase.storage.from('avatars').remove([path])
 }
 
 // ===== Dashboard =====

@@ -1,4 +1,5 @@
-import type { PackageCode } from '@/content/packages'
+import { findPackage, type PackageCode } from '@/content/packages'
+import type { Booking } from '@/lib/adminApi'
 
 type PackageTheme = {
   /** Texto de acento (nombre, precio, viñetas). */
@@ -55,4 +56,13 @@ export const PACKAGE_THEME: Record<PackageCode, PackageTheme> = {
     border: 'border-xmas-red',
     shadow: 'group-hover:shadow-xmas-red/40 group-focus-within:shadow-xmas-red/40',
   },
+}
+
+/** Colores de una reserva en el admin: aceptada en color sólido del paquete, pendiente solo con borde. */
+export function bookingColorClass(b: Pick<Booking, 'package_code' | 'status'>): string {
+  const pkg = findPackage(b.package_code)
+  const theme = pkg ? PACKAGE_THEME[pkg.code] : null
+  if (!theme) return 'bg-gold-dark text-cream'
+  if (b.status === 'pendiente') return `bg-white ${theme.text} ring-2 ring-inset ${theme.ringStrong}`
+  return `${theme.bg} ${pkg?.code === 'P1' ? 'text-ink' : 'text-cream'}`
 }

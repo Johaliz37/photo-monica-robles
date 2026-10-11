@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import type { Package } from '@/content/packages'
-import { BOOKING, CONTACT, PAYMENT } from '@/content/site'
+import { BOOKING, PAYMENT } from '@/content/site'
 import { formatEURCompact } from '@/lib/money'
+import { primaryContactUrl } from '@/lib/profile'
+import { usePublicProfile } from '@/lib/publicProfile'
 import BookingSummary from './BookingSummary'
 import ReceiptUpload from './ReceiptUpload'
 import { StepNav } from './Stepper'
@@ -39,8 +41,11 @@ export default function StepPayment({
 
   const deposit = formatEURCompact(BOOKING.depositCents)
   const concept = `Navidad ${clientName}`.trim()
-  const hasBizum = isSet(PAYMENT.bizum)
+  // El Bizum viene del perfil (/admin/perfil); IBAN y titular, de site.ts
+  const profile = usePublicProfile()
+  const hasBizum = isSet(profile.bizum)
   const hasIban = isSet(PAYMENT.iban)
+  const contactUrl = primaryContactUrl(profile)
 
   async function handleSubmit() {
     if (submitting || !receiptPath) return
@@ -82,7 +87,7 @@ export default function StepPayment({
 
         {hasBizum || hasIban ? (
           <dl className="mt-4 space-y-3 text-sm">
-            {hasBizum && <PaymentRow label="Bizum" value={PAYMENT.bizum} />}
+            {hasBizum && <PaymentRow label="Bizum" value={profile.bizum} />}
             {hasIban && <PaymentRow label="Transferencia (IBAN)" value={PAYMENT.iban} />}
             {isSet(PAYMENT.holder) && (
               <PaymentRow label="Titular" value={PAYMENT.holder} copy={false} />
@@ -91,15 +96,18 @@ export default function StepPayment({
           </dl>
         ) : (
           <p className="mt-4 text-sm">
-            Escríbenos por{' '}
-            <a
-              href={CONTACT.instagramUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="font-normal text-gold-dark underline"
-            >
-              Instagram
-            </a>{' '}
+            {contactUrl ? (
+              <a
+                href={contactUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="font-normal text-gold-dark underline"
+              >
+                Escríbenos
+              </a>
+            ) : (
+              'Escríbenos'
+            )}{' '}
             para recibir los datos de pago. Concepto:{' '}
             <strong className="font-semibold">{concept}</strong>
           </p>

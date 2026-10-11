@@ -1,50 +1,44 @@
-import { addDays, addMonths, addWeeks, format, startOfMonth, startOfWeek } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useCallback, useEffect, useState } from 'react'
-import AgendaView from '@/components/admin/AgendaView'
+import CalendarView from '@/components/admin/CalendarView'
 import ConfirmDialog from '@/components/admin/ConfirmDialog'
 import Spinner from '@/components/admin/Spinner'
 import MonthAvailabilityForm from '@/components/admin/MonthAvailabilityForm'
 import { deleteWindow, fetchAgenda, type Agenda, type AvailabilityWindow } from '@/lib/adminApi'
+import { calendarDate, shiftAnchor, visibleDays, type CalendarMode } from '@/lib/calendar'
 import { dayKey, formatDateLong, formatTime, madridDateTime } from '@/lib/dates'
 import { errorMessage } from '@/lib/errors'
 
-type Mode = 'semana' | 'mes'
+const MODES: { value: CalendarMode; label: string }[] = [
+  { value: 'day', label: 'Día' },
+  { value: 'week', label: 'Semana' },
+  { value: 'month', label: 'Mes' },
+]
 
-/** Fecha de calendario (sin hora) a partir de "2026-11-07". */
-function calendarDate(key: string): Date {
-  const [y, m, d] = key.split('-').map(Number)
-  return new Date(y, m - 1, d)
-}
-
-/** Primer día del periodo y primer día del siguiente, como fechas de calendario. */
-function period(mode: Mode, anchor: Date): [Date, Date] {
-  if (mode === 'semana') {
-    const first = startOfWeek(anchor, { weekStartsOn: 1 })
-    return [first, addDays(first, 7)]
-  }
-  const first = startOfMonth(anchor)
-  return [first, addMonths(first, 1)]
-}
-
-function periodLabel(mode: Mode, [first, next]: [Date, Date]): string {
-  if (mode === 'mes') return format(first, 'LLLL yyyy', { locale: es })
-  return `${format(first, 'd MMM', { locale: es })} – ${format(addDays(next, -1), 'd MMM yyyy', { locale: es })}`
+function periodLabel(mode: CalendarMode, anchor: string, days: string[]): string {
+  const first = calendarDate(days[0])
+  const last = calendarDate(days[days.length - 1])
+  if (mode === 'day') return format(first, "EEEE, d 'de' MMMM yyyy", { locale: es })
+  if (mode === 'month') return format(calendarDate(anchor), 'LLLL yyyy', { locale: es })
+  return `${format(first, 'd MMM', { locale: es })} – ${format(last, 'd MMM yyyy', { locale: es })}`
 }
 
 export default function AdminAvailability() {
   const [now] = useState(() => new Date())
-  const [mode, setMode] = useState<Mode>('semana')
-  const [anchor, setAnchor] = useState(() => calendarDate(dayKey(now)))
+  const today = dayKey(now)
+  const [mode, setMode] = useState<CalendarMode>('week')
+  const [anchor, setAnchor] = useState(today)
   const [toDelete, setToDelete] = useState<AvailabilityWindow | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  const [first, next] = period(mode, anchor)
-  const fromKey = format(first, 'yyyy-MM-dd')
-  const toKey = format(next, 'yyyy-MM-dd')
+  const days = visibleDays(mode, anchor)
+  const fromKey = days[0]
+  const toKey = shiftAnchor('day', days[days.length - 1], 1)
+  const modeLabel = MODES.find((m) => m.value === mode)!.label
 
-  // Resultado ligado al periodo que lo pidió: al cambiar de semana/mes se muestra "cargando"
+  // Resultado ligado al periodo que lo pidió: al cambiar de periodo se muestra "cargando"
   const periodKey = `${fromKey}|${toKey}`
   const [result, setResult] = useState<{ key: string; agenda?: Agenda; error?: string }>()
   const [reloads, setReloads] = useState(0)
@@ -64,10 +58,6 @@ export default function AdminAvailability() {
   const agenda = current?.agenda ?? null
   const loadError = current?.error ?? null
 
-  function move(delta: number) {
-    setAnchor((a) => (mode === 'semana' ? addWeeks(a, delta) : addMonths(a, delta)))
-  }
-
   async function confirmDelete() {
     if (!toDelete) return
     setDeleting(true)
@@ -84,60 +74,63 @@ export default function AdminAvailability() {
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-8">
+    <section className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="mb-6 font-display text-2xl tracking-[0.2em] text-gold-dark">Disponibilidad</h1>
 
-      <div className="grid gap-10 md:grid-cols-[minmax(0,22rem)_1fr]">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,22rem)_1fr]">
         <div>
           <h2 className="mb-3 text-xs uppercase tracking-[0.2em] text-ink/70">Disponibilidad del mes</h2>
           <MonthAvailabilityForm now={now} refreshKey={reloads} onSaved={reload} />
         </div>
 
-        <div>
+        <div className="min-w-0">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-xs uppercase tracking-[0.2em] text-ink/70">Agenda</h2>
-            <div role="group" aria-label="Vista" className="flex gap-2">
-              {(['semana', 'mes'] as const).map((m) => (
+            <div role="group" aria-label="Vista" className="flex gap-1 rounded-full bg-white/60 p-1 ring-1 ring-gold-light">
+              {MODES.map((m) => (
                 <button
-                  key={m}
+                  key={m.value}
                   type="button"
-                  aria-pressed={mode === m}
-                  onClick={() => setMode(m)}
-                  className={`min-h-11 rounded-full px-4 text-sm capitalize ring-1 ${
-                    mode === m
-                      ? 'bg-gold-dark font-semibold text-cream ring-gold-dark'
-                      : 'bg-white/60 ring-gold-light hover:bg-cream-dark'
+                  aria-pressed={mode === m.value}
+                  onClick={() => setMode(m.value)}
+                  className={`min-h-9 rounded-full px-4 text-sm ${
+                    mode === m.value ? 'bg-gold-dark font-semibold text-cream' : 'hover:bg-cream-dark'
                   }`}
                 >
-                  {m}
+                  {m.label}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex items-center gap-2">
             <button
               type="button"
-              onClick={() => move(-1)}
-              aria-label={mode === 'semana' ? 'Semana anterior' : 'Mes anterior'}
+              onClick={() => setAnchor(today)}
+              disabled={days.includes(today) && (mode !== 'month' || anchor.slice(0, 7) === today.slice(0, 7))}
+              className="min-h-11 rounded-full px-4 text-sm ring-1 ring-gold-light hover:bg-cream-dark disabled:opacity-50"
+            >
+              Hoy
+            </button>
+            <button
+              type="button"
+              onClick={() => setAnchor(shiftAnchor(mode, anchor, -1))}
+              aria-label={`${modeLabel} anterior`}
               className="size-11 rounded-full text-xl text-gold-dark hover:bg-cream-dark"
             >
               ‹
             </button>
-            <p
-              aria-live="polite"
-              className="font-display tracking-[0.1em] text-gold-dark capitalize"
-            >
-              {periodLabel(mode, [first, next])}
-            </p>
             <button
               type="button"
-              onClick={() => move(1)}
-              aria-label={mode === 'semana' ? 'Semana siguiente' : 'Mes siguiente'}
+              onClick={() => setAnchor(shiftAnchor(mode, anchor, 1))}
+              aria-label={`${modeLabel} siguiente`}
               className="size-11 rounded-full text-xl text-gold-dark hover:bg-cream-dark"
             >
               ›
             </button>
+            <p aria-live="polite" className="font-display tracking-[0.1em] text-gold-dark first-letter:uppercase">
+              {periodLabel(mode, anchor, days)}
+            </p>
           </div>
 
           {loadError && (
@@ -147,14 +140,41 @@ export default function AdminAvailability() {
           )}
           {agenda === null && !loadError && <Spinner label="Cargando agenda…" />}
           {agenda && (
-            <AgendaView
-              windows={agenda.windows}
-              bookings={agenda.bookings}
-              onDelete={(w) => {
-                setDeleteError(null)
-                setToDelete(w)
-              }}
-            />
+            <>
+              {agenda.windows.length === 0 && (
+                <p className="mb-3 text-sm text-ink/70">No hay franjas en este periodo.</p>
+              )}
+              <CalendarView
+                mode={mode}
+                days={days}
+                anchor={anchor}
+                now={now}
+                windows={agenda.windows}
+                bookings={agenda.bookings}
+                onDelete={(w) => {
+                  setDeleteError(null)
+                  setToDelete(w)
+                }}
+                onSelectDay={(day) => {
+                  setAnchor(day)
+                  setMode('day')
+                }}
+              />
+              <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                <span className="flex items-center gap-1.5">
+                  <span aria-hidden="true" className="size-3 rounded-sm bg-teal/10 ring-1 ring-teal/30" />
+                  Franja disponible
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span aria-hidden="true" className="size-3 rounded-sm bg-teal" />
+                  Reserva aceptada (color del paquete)
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span aria-hidden="true" className="size-3 rounded-sm bg-white ring-2 ring-teal ring-inset" />
+                  Reserva pendiente
+                </span>
+              </p>
+            </>
           )}
         </div>
       </div>

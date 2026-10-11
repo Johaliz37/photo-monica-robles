@@ -20,6 +20,8 @@ const MESSAGES: Record<string, string> = {
     'Hay reservas activas que quedarían fuera del nuevo horario. Ajusta la disponibilidad para cubrirlas o recházalas primero.',
   PAST_MONTH: 'Ese mes ya ha pasado.',
   INVALID_DATA: 'Los datos no son válidos. Revisa el formulario.',
+  PHOTO_TYPE: 'Formato no admitido. Sube una imagen JPG, PNG o WEBP.',
+  PHOTO_TOO_BIG: 'La imagen pesa más de 10 MB. Elige una más ligera.',
 }
 
 const GENERIC = 'Ha ocurrido un error. Inténtalo de nuevo.'

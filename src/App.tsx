@@ -12,10 +12,12 @@ const AdminRoot = lazy(() => import('@/pages/admin/AdminRoot'))
 const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'))
 const AdminGuard = lazy(() => import('@/components/admin/AdminGuard'))
 const AdminLayout = lazy(() => import('@/components/admin/AdminLayout'))
+const AdminToday = lazy(() => import('@/pages/admin/AdminToday'))
 const AdminBookings = lazy(() => import('@/pages/admin/AdminBookings'))
 const AdminBookingDetail = lazy(() => import('@/pages/admin/AdminBookingDetail'))
 const AdminAvailability = lazy(() => import('@/pages/admin/AdminAvailability'))
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'))
+const AdminProfile = lazy(() => import('@/pages/admin/AdminProfile'))
 
 const router = createBrowserRouter([
   {
@@ -51,10 +53,12 @@ const router = createBrowserRouter([
           </AdminGuard>
         ),
         children: [
-          { index: true, element: <AdminBookings /> },
+          { index: true, element: <AdminToday /> },
+          { path: 'reservas', element: <AdminBookings /> },
           { path: 'reservas/:id', element: <AdminBookingDetail /> },
           { path: 'disponibilidad', element: <AdminAvailability /> },
           { path: 'dashboard', element: <AdminDashboard /> },
+          { path: 'perfil', element: <AdminProfile /> },
           { path: '*', element: <NotFound /> },
         ],
       },

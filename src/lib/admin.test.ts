@@ -174,6 +174,12 @@ describe('whatsappUrl', () => {
     expect(whatsappUrl('+33612345678')).toBe('https://wa.me/33612345678')
     expect(whatsappUrl('0033612345678')).toBe('https://wa.me/33612345678')
   })
+
+  it('añade el mensaje codificado', () => {
+    expect(whatsappUrl('612345678', '¿Hay hueco el sábado?')).toBe(
+      'https://wa.me/34612345678?text=%C2%BFHay%20hueco%20el%20s%C3%A1bado%3F',
+    )
+  })
 })
 
 describe('shortCode', () => {

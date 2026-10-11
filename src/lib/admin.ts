@@ -129,13 +129,5 @@ export function occupancy(
   return { bookedMin: Math.round(booked / MINUTE), totalMin: Math.round((we - ws) / MINUTE) }
 }
 
-/** Enlace de WhatsApp. Los móviles de 9 cifras sin prefijo se asumen españoles (+34). */
-export function whatsappUrl(phone: string): string {
-  const trimmed = phone.trim()
-  let digits = trimmed.replace(/\D/g, '')
-  if (!trimmed.startsWith('+')) {
-    if (digits.startsWith('00')) digits = digits.slice(2)
-    else if (digits.length === 9) digits = `34${digits}`
-  }
-  return `https://wa.me/${digits}`
-}
+// Vive en profile.ts para que la web pública no cargue este módulo (y date-fns)
+export { whatsappUrl } from './profile'

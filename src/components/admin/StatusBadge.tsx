@@ -7,7 +7,7 @@ const STATUS_LABEL: Record<BookingStatus, string> = {
 }
 
 const STATUS_CLASS: Record<BookingStatus, string> = {
-  pendiente: 'bg-gold-light/40 text-gold-dark',
+  pendiente: 'bg-xmas-red text-cream',
   aceptada: 'bg-pine/15 text-pine',
   rechazada: 'bg-xmas-red/10 text-xmas-red',
 }

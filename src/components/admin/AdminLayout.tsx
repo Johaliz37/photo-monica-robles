@@ -66,6 +66,9 @@ export default function AdminLayout() {
   const navItems = (
     <>
       <NavLink to="/admin" end className={linkClass}>
+        Hoy
+      </NavLink>
+      <NavLink to="/admin/reservas" end className={linkClass}>
         Reservas
         {pendingBadge && (
           <span
@@ -81,6 +84,9 @@ export default function AdminLayout() {
       </NavLink>
       <NavLink to="/admin/dashboard" className={linkClass}>
         Dashboard
+      </NavLink>
+      <NavLink to="/admin/perfil" className={linkClass}>
+        Perfil
       </NavLink>
       <button
         type="button"
@@ -108,10 +114,10 @@ export default function AdminLayout() {
               ADMIN
             </span>
           </Link>
-          {/* Menú en línea cuando cabe junto al logo (desde 880 px; por debajo haría salto de línea) */}
+          {/* Menú en línea cuando cabe junto al logo (desde 1000 px; por debajo haría salto de línea) */}
           <nav
             aria-label="Admin"
-            className="hidden items-center gap-x-5 text-xs uppercase tracking-[0.2em] min-[880px]:flex"
+            className="hidden items-center gap-x-5 text-xs uppercase tracking-[0.2em] min-[1000px]:flex"
           >
             {navItems}
           </nav>
@@ -122,7 +128,7 @@ export default function AdminLayout() {
             aria-expanded={menuOpen}
             aria-controls="admin-menu"
             onClick={() => setOpenKey(menuOpen ? null : location.key)}
-            className="relative inline-flex size-11 items-center justify-center rounded-sm text-cream hover:text-leaf min-[880px]:hidden"
+            className="relative inline-flex size-11 items-center justify-center rounded-sm text-cream hover:text-leaf min-[1000px]:hidden"
           >
             <span className="sr-only">{menuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
             <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -142,7 +148,7 @@ export default function AdminLayout() {
           <nav
             id="admin-menu"
             aria-label="Admin"
-            className="border-t border-cream/20 text-sm uppercase tracking-[0.2em] min-[880px]:hidden"
+            className="border-t border-cream/20 text-sm uppercase tracking-[0.2em] min-[1000px]:hidden"
           >
             <div className="mx-auto flex max-w-5xl flex-col px-4 py-2">{navItems}</div>
           </nav>

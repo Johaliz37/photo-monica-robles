@@ -10,7 +10,7 @@ MVP con una sola parte transaccional: **la reserva**. Todo lo demás (fotos, tex
 Fuente de verdad del contenido: [paquetes_navidad_2026.pdf](paquetes_navidad_2026.pdf) (9 páginas rasterizadas, sin texto extraíble) y [images/](images/).
 
 ## Reglas de producto (no negociables en el MVP)
-- **Sin CMS ni opciones configurables** por la UI. Para cambiar paquetes o textos se edita `src/content/*.ts` y se redepliega.
+- **Sin CMS ni opciones configurables** por la UI. Para cambiar paquetes o textos se edita `src/content/*.ts` y se redepliega. Excepciones: la disponibilidad y el **perfil** (nombre, teléfono, email, Bizum, redes y "Sobre mí"), que se editan en `/admin`.
 - **Coste 0 €**: solo planes gratuitos (Cloudflare Workers, Supabase Free, GitHub Actions). No añadir servicios de pago.
 - **Sin notificaciones** (ni email ni WhatsApp). Mónica entra en `/admin` para ver las reservas nuevas.
 - **Pago del adelanto (20 €) fuera de la web** (Bizum o transferencia). El cliente **debe subir el comprobante** para enviar la reserva.
@@ -30,8 +30,9 @@ Fuente de verdad del contenido: [paquetes_navidad_2026.pdf](paquetes_navidad_202
 
 ## Reglas de seguridad
 - El rol `anon` **nunca** lee `bookings` ni el bucket `receipts`. Solo puede:
-  - llamar a `get_availability` y `create_booking`;
-  - subir archivos (INSERT) a `receipts`.
+  - llamar a `get_availability`, `create_booking` y `get_public_profile` (solo campos públicos del perfil; la tabla `profile` no la lee);
+  - subir archivos (INSERT) a `receipts`;
+  - descargar por URL pública la foto de perfil del bucket público `avatars` (solo el admin sube, borra o lista).
 - **El servidor es la fuente de verdad**: duración, precio, validación de franja, solapes y existencia del comprobante se calculan y validan en `create_booking`. El frontend solo hace cálculos para **mostrar** (UX).
 - Los solapes se evitan con una **restricción de exclusión** en Postgres. No te fíes solo de validaciones previas.
 - El acceso de admin se comprueba con `is_admin()` (tabla `admins`), no con un simple "usuario autenticado". Los registros públicos están desactivados en Supabase Auth.
@@ -88,7 +89,7 @@ npm run db:types     # regenera src/lib/database.types.ts desde la BD local
 7. [Despliegue](docs/fases/07-despliegue.md)
 
 ## Datos pendientes de Mónica
-- Número de Bizum y/o IBAN, y concepto del pago.
+- IBAN y concepto del pago (el Bizum lo rellena ella en `/admin/perfil`).
 - Datos para el aviso legal: nombre, NIF y email de contacto.
 - Lugar de las sesiones: ¿estudio o Espadilla? Dirección o punto de encuentro.
 - Confirmar los valores por defecto: ampliación bebé +15 min, margen de 15 min entre sesiones y precio normal tras el 16 de octubre.

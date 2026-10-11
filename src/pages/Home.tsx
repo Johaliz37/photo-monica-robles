@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import AboutMe from '@/components/home/AboutMe'
 import AdditionalInfo from '@/components/home/AdditionalInfo'
 import Espadilla from '@/components/home/Espadilla'
 import Extras from '@/components/home/Extras'
@@ -6,6 +7,7 @@ import FinalCta from '@/components/home/FinalCta'
 import Gallery from '@/components/home/Gallery'
 import Hero from '@/components/home/Hero'
 import PackagesSection from '@/components/home/PackagesSection'
+import { usePublicProfile } from '@/lib/publicProfile'
 
 type Props = {
   /** Inyectable para tests; por defecto, el momento actual. */
@@ -15,6 +17,7 @@ type Props = {
 export default function Home({ now: nowProp }: Props) {
   // Se fija al montar para que los precios no cambien entre renders
   const [now] = useState(() => nowProp ?? new Date())
+  const profile = usePublicProfile()
   return (
     <>
       <Hero now={now} />
@@ -23,7 +26,8 @@ export default function Home({ now: nowProp }: Props) {
       <Espadilla />
       <Extras />
       <AdditionalInfo />
-      <FinalCta />
+      <AboutMe profile={profile} />
+      <FinalCta profile={profile} />
     </>
   )
 }

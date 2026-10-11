@@ -29,6 +29,12 @@ export function formatTime(date: Date | string | number): string {
   return format(toMadrid(date), 'HH:mm', { locale: es })
 }
 
+/** Minutos desde la medianoche de Madrid (10:30 → 630). */
+export function minutesOfDay(date: Date | string | number): number {
+  const d = toMadrid(date)
+  return d.getHours() * 60 + d.getMinutes()
+}
+
 /** "sáb 7 nov" */
 export function formatDateShort(date: Date | string | number): string {
   return format(toMadrid(date), 'EEE d MMM', { locale: es })
