@@ -1,14 +1,11 @@
-import { CONTACT } from './site'
+import type { PublicProfile } from '@/lib/profile'
 
 /**
- * Datos del titular de la web (responsable del tratamiento).
- * TODO: pendiente de Mónica (nombre completo, NIF, email y, si procede, dirección).
- * Mientras valgan 'TODO', las páginas legales muestran "[pendiente]".
+ * Datos fijos del titular de la web (responsable del tratamiento). El nombre, el email y
+ * las redes salen del perfil que Mónica edita en /admin/perfil.
  */
 export const OWNER = {
-  name: 'TODO',
-  nif: 'TODO',
-  email: 'TODO',
+  nif: '53381878M',
   /** Opcional: déjalo vacío si no se quiere publicar. */
   address: '',
   brand: 'Mónica Robles Fotografía',
@@ -29,18 +26,23 @@ export interface LegalSection {
 
 const owner = (value: string) => (isPending(value) ? '[pendiente]' : value)
 
-const contactLine =
-  `Email: ${owner(OWNER.email)}. Instagram: @${CONTACT.instagram}.` +
-  (OWNER.address ? ` Dirección: ${OWNER.address}.` : '')
+/** Datos del titular: los fijos de OWNER y los del perfil (mientras carga, "[pendiente]"). */
+function ownerItems(profile: PublicProfile): string[] {
+  const contact =
+    `Email: ${owner(profile.email)}.` +
+    (profile.instagram ? ` Instagram: @${profile.instagram}.` : '') +
+    (OWNER.address ? ` Dirección: ${OWNER.address}.` : '')
+  return [
+    `Titular: ${owner(profile.full_name)} (${OWNER.brand}).`,
+    `NIF: ${owner(OWNER.nif)}.`,
+    contact,
+  ]
+}
 
-export const PRIVACY_SECTIONS: LegalSection[] = [
+export const privacySections = (profile: PublicProfile): LegalSection[] => [
   {
     title: 'Responsable del tratamiento',
-    items: [
-      `Titular: ${owner(OWNER.name)} (${OWNER.brand}).`,
-      `NIF: ${owner(OWNER.nif)}.`,
-      contactLine,
-    ],
+    items: ownerItems(profile),
   },
   {
     title: 'Qué datos tratamos',
@@ -97,7 +99,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
   {
     title: 'Tus derechos',
     paragraphs: [
-      `Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad, así como retirar tu consentimiento, escribiendo a ${owner(OWNER.email)}. Te responderemos en el plazo máximo de un mes.`,
+      `Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad, así como retirar tu consentimiento, escribiendo a ${owner(profile.email)}. Te responderemos en el plazo máximo de un mes.`,
       'Si consideras que no hemos tratado tus datos correctamente, puedes presentar una reclamación ante la Agencia Española de Protección de Datos (www.aepd.es).',
     ],
   },
@@ -113,17 +115,13 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
   },
 ]
 
-export const LEGAL_NOTICE_SECTIONS: LegalSection[] = [
+export const legalNoticeSections = (profile: PublicProfile): LegalSection[] => [
   {
     title: 'Titular de la web',
     paragraphs: [
       'En cumplimiento de la Ley 34/2002, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se informa de los datos del titular de este sitio web:',
     ],
-    items: [
-      `Titular: ${owner(OWNER.name)} (${OWNER.brand}).`,
-      `NIF: ${owner(OWNER.nif)}.`,
-      contactLine,
-    ],
+    items: ownerItems(profile),
   },
   {
     title: 'Objeto',

@@ -1,6 +1,8 @@
 import LegalPage from '@/components/LegalPage'
-import { LEGAL_NOTICE_SECTIONS } from '@/content/legal'
+import { legalNoticeSections } from '@/content/legal'
+import { usePublicProfile } from '@/lib/publicProfile'
 
 export default function Legal() {
-  return <LegalPage title="Aviso legal" sections={LEGAL_NOTICE_SECTIONS} />
+  const profile = usePublicProfile()
+  return <LegalPage title="Aviso legal" sections={legalNoticeSections(profile)} />
 }

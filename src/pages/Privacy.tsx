@@ -1,7 +1,9 @@
 import LegalPage from '@/components/LegalPage'
-import { PRIVACY_SECTIONS } from '@/content/legal'
+import { privacySections } from '@/content/legal'
+import { usePublicProfile } from '@/lib/publicProfile'
 
 export default function Privacy() {
+  const profile = usePublicProfile()
   return (
     <LegalPage
       title="Política de privacidad"
@@ -12,7 +14,7 @@ export default function Privacy() {
           Protección de Datos (RGPD) y la Ley Orgánica 3/2018 (LOPDGDD).
         </p>
       }
-      sections={PRIVACY_SECTIONS}
+      sections={privacySections(profile)}
     />
   )
 }

@@ -90,7 +90,7 @@ npm run db:types     # regenera src/lib/database.types.ts desde la BD local
 
 ## Datos pendientes de Mónica
 - IBAN y concepto del pago (el Bizum lo rellena ella en `/admin/perfil`).
-- Datos para el aviso legal: nombre, NIF y email de contacto.
+- Aviso legal y privacidad: el NIF está en `src/content/legal.ts`; nombre, email e Instagram salen del perfil (`/admin/perfil`), así que Mónica debe rellenarlos allí.
 - Lugar de las sesiones: ¿estudio o Espadilla? Dirección o punto de encuentro.
 - Confirmar los valores por defecto: ampliación bebé +15 min, margen de 15 min entre sesiones y precio normal tras el 16 de octubre.
 - Fotos originales en alta resolución (las del PDF son de 1055×1491 px con texto incrustado).
