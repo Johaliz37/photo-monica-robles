@@ -50,6 +50,9 @@ export default function Layout() {
             </Link>
           </nav>
         </div>
+        <p className="border-t border-ink/10 px-4 py-3 text-center text-[11px] tracking-wide text-ink/60">
+          Developed by Roquintech (Johanna Rodríguez) 2026
+        </p>
       </footer>
 
       <WhatsAppWidget phone={profile.phone} />

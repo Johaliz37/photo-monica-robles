@@ -13,6 +13,8 @@
   --color-pine: #2f4a34;
   /* Colores del logo: fondo azul petróleo y verde de la hoja */
   --color-teal: #154551;
+  /* Petróleo más claro para el menú desplegable del admin (texto crema encima, 6,1:1) */
+  --color-teal-light: #23606e;
   --color-leaf: #b5ca49;
   /* Amarillo del paquete 1: claro para fondos (texto ink encima, 5,5:1) y oscuro para
      texto grande sobre crema (4,2:1) */

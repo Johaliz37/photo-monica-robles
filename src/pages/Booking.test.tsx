@@ -65,6 +65,14 @@ describe('salir de la reserva', () => {
     expect(await screen.findByText('Portada')).toBeInTheDocument()
   })
 
+  it('al salir se borra el borrador y volver empieza de cero', async () => {
+    renderBooking(3)
+    fireEvent.click(screen.getByRole('link', { name: 'Inicio' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Salir' }))
+    await screen.findByText('Portada')
+    expect(sessionStorage.getItem('reserva-navidad-2026')).toBeNull()
+  })
+
   it('en el primer paso sale sin preguntar', async () => {
     renderBooking(1)
     fireEvent.click(screen.getByRole('link', { name: 'Inicio' }))

@@ -18,6 +18,7 @@ const AdminBookingDetail = lazy(() => import('@/pages/admin/AdminBookingDetail')
 const AdminAvailability = lazy(() => import('@/pages/admin/AdminAvailability'))
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'))
 const AdminProfile = lazy(() => import('@/pages/admin/AdminProfile'))
+const AdminManual = lazy(() => import('@/pages/admin/AdminManual'))
 
 const router = createBrowserRouter([
   {
@@ -59,6 +60,7 @@ const router = createBrowserRouter([
           { path: 'disponibilidad', element: <AdminAvailability /> },
           { path: 'dashboard', element: <AdminDashboard /> },
           { path: 'perfil', element: <AdminProfile /> },
+          { path: 'manual', element: <AdminManual /> },
           { path: '*', element: <NotFound /> },
         ],
       },

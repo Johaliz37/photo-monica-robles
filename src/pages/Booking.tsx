@@ -109,6 +109,14 @@ function saveDraft(state: State) {
   }
 }
 
+function clearDraft() {
+  try {
+    sessionStorage.removeItem(DRAFT_KEY)
+  } catch {
+    // Sin sessionStorage no hay borrador que borrar
+  }
+}
+
 function init(queryPackage: string | null): State {
   const draft = loadDraft()
   const state: State = {
@@ -153,6 +161,10 @@ export default function Booking() {
   }, [searchParams, setSearchParams])
 
   useEffect(() => saveDraft(state), [state])
+
+  // Salir de la reserva (navegar a otra página) la reinicia: volver a «Reservar» empieza de cero.
+  // Recargar la página no desmonta el componente, así que el borrador sigue sirviendo para eso.
+  useEffect(() => clearDraft, [])
 
   // Con la reserva a medias (pasos 2 a 4), salir a otra página pide confirmación
   const inProgress = state.step >= 2 && state.step <= 4
@@ -292,10 +304,7 @@ export default function Booking() {
         onCancel={() => blocker.reset?.()}
       >
         <p>Tu reserva todavía no se ha enviado y el hueco no queda guardado.</p>
-        <p>
-          Si vuelves a «Reservar» sin cerrar esta pestaña, podrás seguir donde lo dejaste, pero la
-          hora elegida puede haberla reservado otra persona.
-        </p>
+        <p>Si sales, se perderán los datos introducidos y tendrás que empezar la reserva de nuevo.</p>
       </ConfirmDialog>
     </section>
   )

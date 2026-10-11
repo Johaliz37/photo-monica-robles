@@ -107,7 +107,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
       'Esta web no usa cookies de análisis, publicidad ni seguimiento, por eso no te mostramos ningún aviso de cookies. Solo guarda información técnica en tu navegador:',
     ],
     items: [
-      'Mientras rellenas la reserva, un borrador en el almacenamiento de sesión del navegador (sessionStorage), para que no pierdas lo escrito si recargas la página. Se borra al enviar la reserva o al cerrar la pestaña.',
+      'Mientras rellenas la reserva, un borrador en el almacenamiento de sesión del navegador (sessionStorage), para que no pierdas lo escrito si recargas la página. Se borra al enviar la reserva, al salir de la página de reserva o al cerrar la pestaña.',
       'En el área privada de administración, la sesión de la persona que gestiona las reservas.',
     ],
   },
