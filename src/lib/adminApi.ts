@@ -1,5 +1,6 @@
 // Consultas del panel de administración. Usan la sesión autenticada: la barrera real es la RLS (is_admin()).
-import type { Database, Tables } from './database.types'
+import type { Exclusion, TimeRange } from './admin'
+import type { Database, Json, Tables } from './database.types'
 import { AppError } from './errors'
 import type { Range } from './slots'
 import { supabase } from './supabase'
@@ -95,10 +96,68 @@ export async function fetchAgenda(from: Date, to: Date): Promise<Agenda> {
   return { windows: windows.data, bookings: bookings.data }
 }
 
-export async function createWindows(ranges: Range[]): Promise<void> {
-  const { error } = await supabase
-    .from('availability_windows')
-    .insert(ranges.map((r) => ({ starts_at: r.start.toISOString(), ends_at: r.end.toISOString() })))
+// ===== Dashboard =====
+
+export interface DashboardData {
+  /** Todas las reservas, de cualquier estado. */
+  bookings: Booking[]
+  windows: AvailabilityWindow[]
+}
+
+export async function fetchDashboardData(): Promise<DashboardData> {
+  const [bookings, windows] = await Promise.all([
+    supabase.from('bookings').select('*').order('starts_at'),
+    supabase.from('availability_windows').select('*').order('starts_at'),
+  ])
+  if (bookings.error) throw bookings.error
+  if (windows.error) throw windows.error
+  return { bookings: bookings.data, windows: windows.data }
+}
+
+/** Configuración guardada de la disponibilidad de un mes (base + excepciones). */
+export interface MonthConfig {
+  /** 0 = lunes … 6 = domingo. */
+  weekdays: number[]
+  ranges: TimeRange[]
+  exclusions: Exclusion[]
+  updatedAt: string
+}
+
+export async function fetchMonthConfig(month: string): Promise<MonthConfig | null> {
+  const { data, error } = await supabase
+    .from('availability_months')
+    .select('*')
+    .eq('month', month)
+    .maybeSingle()
+  if (error) throw error
+  if (!data) return null
+  return {
+    weekdays: data.weekdays,
+    ranges: data.ranges as unknown as TimeRange[],
+    exclusions: data.exclusions as unknown as Exclusion[],
+    updatedAt: data.updated_at,
+  }
+}
+
+/**
+ * Guarda la configuración del mes y reemplaza sus franjas de hoy en adelante, todo en una
+ * transacción. Falla con BOOKINGS_OUTSIDE_WINDOWS si alguna reserva activa quedaría fuera.
+ */
+export async function saveMonthAvailability(
+  month: string,
+  config: Omit<MonthConfig, 'updatedAt'>,
+  windows: Range[],
+): Promise<void> {
+  const { error } = await supabase.rpc('save_month_availability', {
+    p_month: month,
+    p_weekdays: config.weekdays,
+    p_ranges: config.ranges as unknown as Json,
+    p_exclusions: config.exclusions as unknown as Json,
+    p_windows: windows.map((w) => ({
+      starts_at: w.start.toISOString(),
+      ends_at: w.end.toISOString(),
+    })),
+  })
   if (error?.code === EXCLUSION_VIOLATION) throw new AppError('WINDOW_OVERLAP')
   if (error) throw error
 }

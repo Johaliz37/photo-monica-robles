@@ -16,6 +16,10 @@ const MESSAGES: Record<string, string> = {
   INVALID_TRANSITION: 'Esta reserva ya cambió de estado. Recarga la página.',
   NOT_ADMIN: 'Tu usuario no tiene permisos de administración.',
   NOT_FOUND: 'No se ha encontrado. Puede que ya se haya borrado.',
+  BOOKINGS_OUTSIDE_WINDOWS:
+    'Hay reservas activas que quedarían fuera del nuevo horario. Ajusta la disponibilidad para cubrirlas o recházalas primero.',
+  PAST_MONTH: 'Ese mes ya ha pasado.',
+  INVALID_DATA: 'Los datos no son válidos. Revisa el formulario.',
 }
 
 const GENERIC = 'Ha ocurrido un error. Inténtalo de nuevo.'

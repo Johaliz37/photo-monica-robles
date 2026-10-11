@@ -16,6 +16,31 @@ export type Database = {
         }
         Relationships: []
       }
+      availability_months: {
+        Row: {
+          exclusions: NonNullable<Json>
+          month: string
+          ranges: NonNullable<Json>
+          updated_at: string
+          weekdays: number[]
+        }
+        ComputedFields: never
+        Insert: {
+          exclusions?: NonNullable<Json>
+          month: string
+          ranges?: NonNullable<Json>
+          updated_at?: string
+          weekdays?: number[]
+        }
+        Update: {
+          exclusions?: NonNullable<Json>
+          month?: string
+          ranges?: NonNullable<Json>
+          updated_at?: string
+          weekdays?: number[]
+        }
+        Relationships: []
+      }
       availability_windows: {
         Row: {
           created_at: string
@@ -173,6 +198,16 @@ export type Database = {
           p_id: string
           p_note?: string
           p_status: Database['public']['Enums']['booking_status']
+        }
+        Returns: undefined
+      }
+      save_month_availability: {
+        Args: {
+          p_exclusions: Json
+          p_month: string
+          p_ranges: Json
+          p_weekdays: number[]
+          p_windows: Json
         }
         Returns: undefined
       }

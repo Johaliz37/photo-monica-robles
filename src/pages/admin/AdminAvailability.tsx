@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import AgendaView from '@/components/admin/AgendaView'
 import ConfirmDialog from '@/components/admin/ConfirmDialog'
 import Spinner from '@/components/admin/Spinner'
-import WindowForm from '@/components/admin/WindowForm'
+import MonthAvailabilityForm from '@/components/admin/MonthAvailabilityForm'
 import { deleteWindow, fetchAgenda, type Agenda, type AvailabilityWindow } from '@/lib/adminApi'
 import { dayKey, formatDateLong, formatTime, madridDateTime } from '@/lib/dates'
 import { errorMessage } from '@/lib/errors'
@@ -89,8 +89,8 @@ export default function AdminAvailability() {
 
       <div className="grid gap-10 md:grid-cols-[minmax(0,22rem)_1fr]">
         <div>
-          <h2 className="mb-3 text-xs uppercase tracking-[0.2em] text-ink/70">Crear franjas</h2>
-          <WindowForm now={now} onCreated={reload} />
+          <h2 className="mb-3 text-xs uppercase tracking-[0.2em] text-ink/70">Disponibilidad del mes</h2>
+          <MonthAvailabilityForm now={now} refreshKey={reloads} onSaved={reload} />
         </div>
 
         <div>
