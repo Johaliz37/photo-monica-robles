@@ -96,6 +96,13 @@ No hay "¿Olvidaste tu contraseña?" en el MVP. Se cambia desde el dashboard de 
 - Los datos del titular (nombre, NIF, email y dirección opcional) están en `OWNER`, en [src/content/legal.ts](src/content/legal.ts). Mientras valgan `'TODO'`, `/privacidad` y `/aviso-legal` muestran "[pendiente]".
 - `VITE_SITE_URL` (URL pública, sin barra final) hace que el build genere `sitemap.xml` y URLs absolutas en `og:image`, que WhatsApp necesita para mostrar la tarjeta. Defínela en las variables de build de Cloudflare y vuelve a desplegar si cambia el dominio. `robots.txt` (con `Disallow: /admin`) se genera siempre.
 
+## Limpiar la base de datos
+
+Para borrar los datos de prueba antes de abrir la web (o empezar de cero) sin tocar los usuarios. Es irreversible.
+
+1. En **SQL Editor**, pegar y ejecutar [supabase/scripts/reset-data.sql](supabase/scripts/reset-data.sql): borra las reservas y la disponibilidad (franjas y configuración por mes) y restablece el perfil a sus valores iniciales. **No** toca `auth.users`, `admins` ni `packages`. Para conservar el perfil, quitar su bloque antes de ejecutar.
+2. En **Storage**, vaciar los buckets (**… → Empty bucket**), porque los archivos no se pueden borrar con SQL: `receipts` y, si se ha limpiado el perfil, `avatars`.
+
 ## Retención de datos (enero de 2027)
 
 La política de privacidad promete borrar los comprobantes a los **6 meses** de la sesión y el resto de datos a los **12 meses**.

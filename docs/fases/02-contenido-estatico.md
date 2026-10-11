@@ -20,10 +20,10 @@ El PDF tiene **9 páginas rasterizadas** (1055×1491 px, RGB, `ASCII85Decode + F
 | `images/…04.14.38` (cajita) | `pkg1.webp` | Paquete 01 |
 | `images/…04.15.05` (kit) | `pkg2.webp` | Paquete 02 |
 | `images/…04.15.42` (álbum) | `pkg3.webp` | Paquete 03 |
-| `p5` (recortes de las 3 fotos) | `cal-1/2/3.webp` | Galería "Calendario de faldilla" |
+| `p5` (recorte de abajo a la izquierda) | `cal-2.webp` | Galería "Calendario de faldilla" |
 | `images/…04.17.51` (bebé) | `studio-1.webp` | Galería y adicionales |
 | `images/…04.18.19` (niña) | `studio-2.webp` | Galería y cierre |
-| `p6` (recortes: pueblo, montañas, ermita, trineo) | `espadilla-*.webp` | Sección Espadilla |
+| `images/` (calle, `_DSC8923`, capilla; hasta 1920 px) y `p6` (trineo) | `espadilla-*.webp` | Sección Espadilla |
 | `p1` (recorte del trineo sin texto, zona inferior) | `hero.webp` | Fondo del hero |
 
    Los recortes se definen como coordenadas `{ left, top, width, height }` en el script, medidas sobre las páginas de 1055×1491.

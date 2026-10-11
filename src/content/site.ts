@@ -73,6 +73,8 @@ export interface EspadillaCard {
   text: string
   image?: ImageName
   imageAlt?: string
+  /** Clases de proporción y encuadre de la foto (por defecto, apaisada 2:1). */
+  imageFrame?: string
 }
 
 // Página 6 del PDF
@@ -90,12 +92,14 @@ export const ESPADILLA = {
       text: 'Desconectad del ritmo diario y disfrutad de sus paisajes, su tranquilidad y el encanto de sus calles.',
       image: 'espadilla-montanas',
       imageAlt: 'Vista de Espadilla, con sus casas blancas al pie de las montañas',
+      imageFrame: 'aspect-[3/2] object-[center_60%]',
     },
     {
       title: 'Rincones con historia',
       text: 'La Ermita de San Roque y sus alrededores son una parada perfecta para pasear, descubrir su arquitectura y disfrutar de la esencia de Espadilla.',
       image: 'espadilla-ermita',
       imageAlt: 'Fachada blanca de la Ermita de San Roque con su espadaña',
+      imageFrame: 'aspect-[4/5] object-[center_35%]',
     },
     {
       title: 'Naturaleza y aire libre',

@@ -15,9 +15,11 @@ const pdfPage = (n) => join(root, 'assets-src', 'pdf', `p${n}.png`)
 const photo = (time) => join(root, 'images', `WhatsApp Image 2026-10-10 at ${time}.jpeg`)
 
 const WIDTHS = [640, 1280]
+// Fotos en alta resolución: más pasos para que se vean nítidas en pantallas retina
+const HD_WIDTHS = [640, 960, 1280, 1920]
 const QUALITY = 80
 
-/** @type {{ name: string, source: string, crop?: { left: number, top: number, width: number, height: number } }[]} */
+/** @type {{ name: string, source: string, crop?: { left: number, top: number, width: number, height: number }, widths?: number[] }[]} */
 const IMAGES = [
   // Logo de la cabecera (fondo azul petróleo #154551, igual que --color-teal)
   { name: 'logo', source: join(root, 'images', 'Logo.png') },
@@ -26,26 +28,21 @@ const IMAGES = [
   { name: 'pkg1', source: photo('04.14.38') },
   { name: 'pkg2', source: photo('04.15.05') },
   { name: 'pkg3', source: photo('04.15.42') },
-  // Calendario de faldilla (p5): foto grande de la derecha y la de abajo a la izquierda
-  { name: 'cal-1', source: pdfPage(5), crop: { left: 540, top: 0, width: 514, height: 1492 } },
+  // Calendario de faldilla (p5): foto de abajo a la izquierda
   { name: 'cal-2', source: pdfPage(5), crop: { left: 0, top: 805, width: 535, height: 687 } },
   { name: 'studio-1', source: photo('04.17.51') },
   { name: 'studio-2', source: photo('04.18.19') },
-  // Espadilla (p6)
+  // Espadilla: fotos originales (1024×1536 y 2000×1429); el trineo sigue saliendo del PDF (p6)
   {
     name: 'espadilla-pueblo',
-    source: pdfPage(6),
-    crop: { left: 592, top: 0, width: 463, height: 540 },
+    source: join(root, 'images', 'Calle mediterránea con torre y cúpula azul.png'),
+    widths: HD_WIDTHS,
   },
-  {
-    name: 'espadilla-montanas',
-    source: pdfPage(6),
-    crop: { left: 30, top: 544, width: 648, height: 303 },
-  },
+  { name: 'espadilla-montanas', source: join(root, 'images', '_DSC8923.jpg'), widths: HD_WIDTHS },
   {
     name: 'espadilla-ermita',
-    source: pdfPage(6),
-    crop: { left: 30, top: 866, width: 361, height: 355 },
+    source: join(root, 'images', 'Capilla mediterránea bajo el sol.png'),
+    widths: HD_WIDTHS,
   },
   {
     name: 'espadilla-trineo',
@@ -58,7 +55,8 @@ const IMAGES = [
 const OG = { source: pdfPage(1), crop: { left: 0, top: 50, width: 1055, height: 554 } }
 
 function load(source, crop) {
-  const img = sharp(source)
+  // rotate() aplica la orientación EXIF de las fotos de cámara
+  const img = sharp(source).rotate()
   return crop ? img.extract(crop) : img
 }
 
@@ -68,12 +66,12 @@ async function main() {
   for (const f of readdirSync(outDir)) rmSync(join(outDir, f))
 
   const manifest = {}
-  for (const { name, source, crop } of IMAGES) {
+  for (const { name, source, crop, widths: steps = WIDTHS } of IMAGES) {
     const meta = await load(source, crop).toBuffer({ resolveWithObject: true })
     const { width, height } = meta.info
     const entry = { width, height, srcSet: [] }
-    // Sin ampliar: si el origen es más estrecho que 1280, el mayor tamaño es el original
-    const widths = [...new Set(WIDTHS.map((w) => Math.min(w, width)))]
+    // Sin ampliar: si el origen es más estrecho que el paso mayor, el mayor tamaño es el original
+    const widths = [...new Set(steps.map((w) => Math.min(w, width)))]
     for (const w of widths) {
       const file = `${name}-${w}.webp`
       const out = await sharp(meta.data)

@@ -80,16 +80,6 @@ export const IMAGES = {
       }
     ]
   },
-  "cal-1": {
-    "width": 514,
-    "height": 1492,
-    "srcSet": [
-      {
-        "src": "/img/cal-1-514.webp",
-        "width": 514
-      }
-    ]
-  },
   "cal-2": {
     "width": 535,
     "height": 687,
@@ -129,36 +119,60 @@ export const IMAGES = {
     ]
   },
   "espadilla-pueblo": {
-    "width": 463,
-    "height": 540,
+    "width": 1024,
+    "height": 1536,
     "srcSet": [
       {
-        "src": "/img/espadilla-pueblo-463.webp",
-        "width": 463
+        "src": "/img/espadilla-pueblo-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/img/espadilla-pueblo-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/img/espadilla-pueblo-1024.webp",
+        "width": 1024
       }
     ]
   },
   "espadilla-montanas": {
-    "width": 648,
-    "height": 303,
+    "width": 2000,
+    "height": 1429,
     "srcSet": [
       {
         "src": "/img/espadilla-montanas-640.webp",
         "width": 640
       },
       {
-        "src": "/img/espadilla-montanas-648.webp",
-        "width": 648
+        "src": "/img/espadilla-montanas-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/img/espadilla-montanas-1280.webp",
+        "width": 1280
+      },
+      {
+        "src": "/img/espadilla-montanas-1920.webp",
+        "width": 1920
       }
     ]
   },
   "espadilla-ermita": {
-    "width": 361,
-    "height": 355,
+    "width": 1024,
+    "height": 1536,
     "srcSet": [
       {
-        "src": "/img/espadilla-ermita-361.webp",
-        "width": 361
+        "src": "/img/espadilla-ermita-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/img/espadilla-ermita-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/img/espadilla-ermita-1024.webp",
+        "width": 1024
       }
     ]
   },

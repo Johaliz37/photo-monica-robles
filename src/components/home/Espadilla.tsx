@@ -3,6 +3,9 @@ import ResponsiveImage from '@/components/ResponsiveImage'
 import { ESPADILLA, type EspadillaCard } from '@/content/site'
 
 const imageClass = 'h-full w-full rounded-sm object-cover shadow-sm'
+// Media columna del contenedor (max-w-6xl = 1152 px) a partir de md; el navegador elige
+// en el srcset el ancho que corresponda a la densidad de la pantalla.
+const imageSizes = '(min-width: 1184px) 568px, (min-width: 768px) 50vw, 100vw'
 
 function CardText({ card }: { card: EspadillaCard }) {
   return (
@@ -42,8 +45,8 @@ export default function Espadilla() {
         <ResponsiveImage
           name={ESPADILLA.image}
           alt={ESPADILLA.imageAlt}
-          sizes="(min-width: 768px) 50vw, 100vw"
-          className={`aspect-[4/5] ${imageClass} md:aspect-auto`}
+          sizes={imageSizes}
+          className={`aspect-[4/5] object-[center_30%] ${imageClass}`}
         />
 
         {ESPADILLA.cards.map((card) =>
@@ -52,8 +55,8 @@ export default function Espadilla() {
               <ResponsiveImage
                 name={card.image}
                 alt={card.imageAlt ?? ''}
-                sizes="(min-width: 768px) 50vw, 100vw"
-                className={`aspect-[2/1] ${imageClass}`}
+                sizes={imageSizes}
+                className={`${card.imageFrame ?? 'aspect-[2/1]'} ${imageClass}`}
               />
               <CardText card={card} />
             </div>
