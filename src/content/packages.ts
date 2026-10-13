@@ -26,7 +26,7 @@ export const PACKAGES: Package[] = [
     presalePriceCents: 7650,
     items: [
       '30 min. de sesión',
-      '5 fotos editadas + retoque de piel básico + eliminación de objetos y manchas',
+      '5 fotos editadas + retoque de piel profesional + eliminación de objetos y manchas',
       'Felicitación digital',
       '3 felicitaciones impresas tamaño 13x18',
       'Cajita + 5 fotografías impresas 13x18',
@@ -44,7 +44,7 @@ export const PACKAGES: Package[] = [
     presalePriceCents: 13050,
     items: [
       '30 min. de sesión',
-      '10 fotografías editadas + retoque de piel básico + eliminación de objetos y manchas',
+      '10 fotografías editadas + retoque de piel profesional + eliminación de objetos y manchas',
       'Felicitación digital',
       '10 fotografías impresas 15 × 20 cm',
       '6 imanes 6 × 6 cm',
@@ -64,7 +64,7 @@ export const PACKAGES: Package[] = [
     presalePriceCents: 17550,
     items: [
       '45 min de sesión',
-      '15 fotos editadas + retoque de piel básico + eliminación de objetos y manchas',
+      '15 fotos editadas + retoque de piel profesional + eliminación de objetos y manchas',
       'Felicitación digital',
       'Álbum tamaño 20x20 con 5 hojas',
       '6 calendarios de faldilla 10x15',

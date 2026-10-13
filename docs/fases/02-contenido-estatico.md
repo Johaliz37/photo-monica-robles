@@ -40,14 +40,14 @@ export interface Package {
 }
 export const PACKAGES: Package[] = [
   { code: 'P1', number: '01', durationMin: 30, priceCents: 8500, presalePriceCents: 7650,
-    items: ['30 min. de sesión', '5 fotos editadas + retoque de piel básico + eliminación de objetos y manchas',
+    items: ['30 min. de sesión', '5 fotos editadas + retoque de piel profesional + eliminación de objetos y manchas',
             'Felicitación digital', '3 felicitaciones impresas tamaño 13x18', 'Cajita + 5 fotografías impresas 13x18'], … },
   { code: 'P2', number: '02', durationMin: 30, priceCents: 14500, presalePriceCents: 13050,
-    items: ['30 min. de sesión', '10 fotografías editadas + retoque de piel básico + eliminación de objetos y manchas',
+    items: ['30 min. de sesión', '10 fotografías editadas + retoque de piel profesional + eliminación de objetos y manchas',
             'Felicitación digital', '10 fotografías impresas 15 × 20 cm', '6 imanes 6 × 6 cm',
             '6 felicitaciones díptico 30 × 15 cm', 'Pegatinas'], … },
   { code: 'P3', number: '03', durationMin: 45, priceCents: 19500, presalePriceCents: 17550,
-    items: ['45 min de sesión', '15 fotos editadas + retoque de piel básico + eliminación de objetos y manchas',
+    items: ['45 min de sesión', '15 fotos editadas + retoque de piel profesional + eliminación de objetos y manchas',
             'Felicitación digital', 'Álbum tamaño 20x20 con 5 hojas', '6 calendarios de faldilla 10x15',
             '3 felicitaciones díptico 30x15'], … },
 ];
