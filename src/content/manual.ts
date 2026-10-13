@@ -1,4 +1,5 @@
 import { formatEURCompact } from '@/lib/money'
+import { GUIDE_MENU_PATH } from './availabilityGuide'
 import { PACKAGES } from './packages'
 import { BOOKING, PRESALE } from './site'
 
@@ -31,7 +32,8 @@ const babyExtra = formatEURCompact(BOOKING.babyExtraCents)
 const minNoticeH = BOOKING.minNoticeMin / 60
 
 const packageItems = PACKAGES.map(
-  (p) => `Paquete ${p.number} · ${p.name}: ${p.durationMin} min, ${formatEURCompact(p.priceCents)}.`,
+  (p) =>
+    `Paquete ${p.number} · ${p.name}: ${p.durationMin} min, ${formatEURCompact(p.priceCents)}.`,
 )
 
 export const CLIENT_MANUAL: Manual = {
@@ -155,6 +157,7 @@ export const ADMIN_MANUAL: Manual = {
       items: [
         'No existe el registro público: solo pueden entrar las cuentas de administración que haya dado de alta el desarrollador.',
         'En el móvil, el menú se abre con el botón ☰ de la esquina. Un punto rojo indica que hay reservas pendientes.',
+        'En el menú, «Manuales» despliega este manual de usuario y la guía paso a paso de la disponibilidad.',
       ],
     },
     {
@@ -230,6 +233,7 @@ export const ADMIN_MANUAL: Manual = {
       paragraphs: [
         'Aquí decides qué días y horas se pueden reservar. Se abre en el mes actual: a la izquierda el calendario (arriba en el móvil) y a la derecha el día elegido, con sus horas.',
         'En el calendario, cada día muestra sus rangos: verde azulado = disponible, rojo con ✕ = no disponible, ↻ = rango en serie, y cuántas reservas tiene.',
+        `La primera vez que entras se abre una guía paso a paso. Puedes volver a seguirla cuando quieras desde el ${GUIDE_MENU_PATH}.`,
       ],
       steps: [
         'Toca un día del calendario (con ‹ › cambias de mes).',

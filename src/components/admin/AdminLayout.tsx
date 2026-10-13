@@ -1,6 +1,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useOutletContext } from 'react-router-dom'
 import ResponsiveImage from '@/components/ResponsiveImage'
+import { GUIDE_PARAM } from '@/content/availabilityGuide'
 import { countPending } from '@/lib/adminApi'
 import { useAuth } from '@/lib/auth'
 import Spinner from './Spinner'
@@ -58,6 +59,10 @@ export default function AdminLayout() {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const menuOpen = openKey === location.key
   const menuRef = useRef<HTMLDivElement>(null)
+  // Submenú «Manuales»: desplegado de entrada si se está en el manual
+  const [manualsOpen, setManualsOpen] = useState(() =>
+    location.pathname.startsWith('/admin/manual'),
+  )
   useEffect(() => {
     if (!menuOpen) return
     const onKey = (e: KeyboardEvent) => {
@@ -101,10 +106,10 @@ export default function AdminLayout() {
   const secondaryLinks = [
     { to: '/admin/disponibilidad', label: 'Disponibilidad' },
     { to: '/admin/perfil', label: 'Perfil' },
-    { to: '/admin/manual', label: 'Manual' },
   ]
+  const inManuals = location.pathname.startsWith('/admin/manual')
   // El botón del desplegable se resalta si la página actual está dentro
-  const inSecondary = secondaryLinks.some((l) => location.pathname.startsWith(l.to))
+  const inSecondary = inManuals || secondaryLinks.some((l) => location.pathname.startsWith(l.to))
 
   return (
     <div className="flex min-h-svh flex-col">
@@ -137,13 +142,22 @@ export default function AdminLayout() {
                 type="button"
                 aria-expanded={menuOpen}
                 aria-controls="admin-menu"
+                data-tour="admin-menu"
                 onClick={() => setOpenKey(menuOpen ? null : location.key)}
                 className={`relative inline-flex size-11 items-center justify-center rounded-sm hover:text-leaf ${
                   inSecondary ? 'text-leaf' : 'text-cream'
                 }`}
               >
                 <span className="sr-only">{menuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
-                <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="size-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                >
                   {menuOpen ? (
                     <path d="M6 6l12 12M18 6L6 18" />
                   ) : (
@@ -151,7 +165,10 @@ export default function AdminLayout() {
                   )}
                 </svg>
                 {!menuOpen && pendingBadge && (
-                  <span aria-hidden="true" className="absolute top-1 right-1 size-2.5 rounded-full bg-xmas-red ring-2 ring-teal md:hidden" />
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-1 right-1 size-2.5 rounded-full bg-xmas-red ring-2 ring-teal md:hidden"
+                  />
                 )}
               </button>
 
@@ -168,6 +185,43 @@ export default function AdminLayout() {
                         {l.label}
                       </NavLink>
                     ))}
+                    <button
+                      type="button"
+                      aria-expanded={manualsOpen}
+                      aria-controls="admin-menu-manuals"
+                      onClick={() => setManualsOpen(!manualsOpen)}
+                      className={`${menuLinkClass({ isActive: inManuals })} justify-between text-left uppercase tracking-[0.2em]`}
+                    >
+                      Manuales
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        className={`size-4 transition-transform ${manualsOpen ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </button>
+                    {manualsOpen && (
+                      <div
+                        id="admin-menu-manuals"
+                        className="ml-1 flex flex-col border-l-2 border-cream/30 pl-3 text-xs"
+                      >
+                        <NavLink to="/admin/manual" className={menuLinkClass}>
+                          Manual de usuario
+                        </NavLink>
+                        {/* Abre la guía paso a paso en Disponibilidad */}
+                        <Link
+                          to={`/admin/disponibilidad?${GUIDE_PARAM}=1`}
+                          className={menuLinkClass({ isActive: false })}
+                        >
+                          Guía de disponibilidad
+                        </Link>
+                      </div>
+                    )}
                     <hr className="my-2 border-cream/30" />
                     <button
                       type="button"

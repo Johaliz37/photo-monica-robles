@@ -89,15 +89,17 @@ export default function DayPanel({
         </p>
       )}
 
-      <RangeTimeline
-        key={day}
-        blocked={dayRules.filter((r) => r.kind === 'no_disponible')}
-        available={dayAvailability(dayRules, minMin)}
-        bookings={dayBookings}
-        selection={draft?.rule ?? null}
-        readOnly={readOnly}
-        onSelect={onSelectRange}
-      />
+      <div data-tour="timeline">
+        <RangeTimeline
+          key={day}
+          blocked={dayRules.filter((r) => r.kind === 'no_disponible')}
+          available={dayAvailability(dayRules, minMin)}
+          bookings={dayBookings}
+          selection={draft?.rule ?? null}
+          readOnly={readOnly}
+          onSelect={onSelectRange}
+        />
+      </div>
       <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
         <span className="flex items-center gap-1.5">
           <span aria-hidden="true" className="size-3 rounded-sm bg-teal/15 ring-1 ring-teal/40" />
@@ -135,6 +137,7 @@ export default function DayPanel({
       {!draft && !readOnly && (
         <button
           type="button"
+          data-tour="add-range"
           onClick={onNew}
           className="min-h-11 rounded-full px-4 text-sm font-semibold text-teal ring-1 ring-teal/40 hover:bg-teal/10"
         >
@@ -142,7 +145,7 @@ export default function DayPanel({
         </button>
       )}
 
-      <div>
+      <div data-tour="day-rules">
         <h3 className="mb-2 text-xs uppercase tracking-[0.2em] text-ink/70">Rangos de este día</h3>
         {dayRules.length === 0 ? (
           <p className="text-sm text-ink/70">No hay rangos configurados.</p>

@@ -1,11 +1,14 @@
 import { addMonths, format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import GuidedTour from '@/components/admin/GuidedTour'
 import Spinner from '@/components/admin/Spinner'
 import AvailabilityMonthGrid from '@/components/admin/availability/AvailabilityMonthGrid'
 import DayPanel from '@/components/admin/availability/DayPanel'
 import DeleteRangeDialog from '@/components/admin/availability/DeleteRangeDialog'
 import type { Draft } from '@/components/admin/availability/RangeForm'
+import { AVAILABILITY_GUIDE, GUIDE_PARAM, GUIDE_SEEN_KEY } from '@/content/availabilityGuide'
 import { PACKAGES } from '@/content/packages'
 import { SEASON } from '@/content/site'
 import type { TimeRange } from '@/lib/admin'
@@ -22,6 +25,23 @@ const DEFAULT_RANGE: TimeRange = { start: '10:00', end: '11:00' }
 
 const shiftMonth = (month: string, delta: number) =>
   format(addMonths(calendarDate(`${month}-01`), delta), 'yyyy-MM')
+
+// La guía se abre sola la primera vez; después, desde Manuales (?guia=1)
+function guideSeen(): boolean {
+  try {
+    return localStorage.getItem(GUIDE_SEEN_KEY) === '1'
+  } catch {
+    return true
+  }
+}
+
+function markGuideSeen() {
+  try {
+    localStorage.setItem(GUIDE_SEEN_KEY, '1')
+  } catch {
+    // Sin almacenamiento: se volverá a mostrar la próxima vez
+  }
+}
 
 interface Data {
   rules: Rule[]
@@ -46,6 +66,17 @@ export default function AdminAvailability() {
   const [data, setData] = useState<Data | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [reloads, setReloads] = useState(0)
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [firstVisit, setFirstVisit] = useState(() => !guideSeen())
+  const guideOpen = firstVisit || searchParams.has(GUIDE_PARAM)
+
+  function closeGuide() {
+    markGuideSeen()
+    setFirstVisit(false)
+    // Se quita el parámetro para poder volver a abrirla desde el menú
+    if (searchParams.has(GUIDE_PARAM)) setSearchParams({}, { replace: true })
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -162,18 +193,20 @@ export default function AdminAvailability() {
           </div>
 
           {data ? (
-            <AvailabilityMonthGrid
-              month={month}
-              today={today}
-              selectedDay={selectedDay}
-              rulesByDay={byDay}
-              bookingsByDay={bookingsByDay}
-              onSelectDay={selectDay}
-              onSelectRule={(rule, day) => {
-                selectDay(day)
-                setFocusRuleId(rule.id)
-              }}
-            />
+            <div data-tour="calendar">
+              <AvailabilityMonthGrid
+                month={month}
+                today={today}
+                selectedDay={selectedDay}
+                rulesByDay={byDay}
+                bookingsByDay={bookingsByDay}
+                onSelectDay={selectDay}
+                onSelectRule={(rule, day) => {
+                  selectDay(day)
+                  setFocusRuleId(rule.id)
+                }}
+              />
+            </div>
           ) : (
             !loadError && <Spinner label="Cargando disponibilidad…" />
           )}
@@ -200,7 +233,7 @@ export default function AdminAvailability() {
           </p>
         </div>
 
-        <div ref={panelRef} className="min-w-0 scroll-mt-4">
+        <div ref={panelRef} data-tour="day-panel" className="min-w-0 scroll-mt-4">
           {data && (
             <DayPanel
               day={selectedDay}
@@ -239,6 +272,14 @@ export default function AdminAvailability() {
           minMin={MIN_WINDOW_MIN}
           onCancel={() => setToDelete(null)}
           onDeleted={changed}
+        />
+      )}
+
+      {data && guideOpen && (
+        <GuidedTour
+          title="Guía de disponibilidad"
+          steps={AVAILABILITY_GUIDE}
+          onClose={closeGuide}
         />
       )}
     </section>

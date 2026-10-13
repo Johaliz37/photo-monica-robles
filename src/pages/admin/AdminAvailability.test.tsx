@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
@@ -8,6 +8,7 @@ import {
   saveAvailabilityRule,
   type Booking,
 } from '@/lib/adminApi'
+import { AVAILABILITY_GUIDE, GUIDE_SEEN_KEY } from '@/content/availabilityGuide'
 import type { Rule } from '@/lib/availability'
 import AdminAvailability from './AdminAvailability'
 
@@ -60,6 +61,8 @@ beforeEach(() => {
   vi.mocked(fetchActiveBookings).mockResolvedValue([BOOKING])
   vi.mocked(saveAvailabilityRule).mockReset().mockResolvedValue()
   vi.mocked(deleteAvailabilityRule).mockReset().mockResolvedValue()
+  // La guía se abre sola la primera vez: aquí se da por vista salvo en sus propios tests
+  localStorage.setItem(GUIDE_SEEN_KEY, '1')
 })
 
 async function openDay(label: RegExp) {
@@ -185,5 +188,43 @@ describe('disponibilidad', () => {
     }
     expect(within(form).getByLabelText('Desde')).toHaveValue('12:00')
     expect(within(form).getByLabelText('Hasta')).toHaveValue('14:00')
+  })
+})
+
+describe('guía de disponibilidad', () => {
+  const renderPage = (url = '/admin/disponibilidad') =>
+    render(
+      <MemoryRouter initialEntries={[url]}>
+        <AdminAvailability />
+      </MemoryRouter>,
+    )
+
+  it('se abre sola la primera vez y al terminar explica dónde volver a verla', async () => {
+    localStorage.removeItem(GUIDE_SEEN_KEY)
+    renderPage()
+    const dialog = await screen.findByRole('dialog', { name: AVAILABILITY_GUIDE[0].title })
+    expect(dialog).toHaveTextContent(`Paso 1 de ${AVAILABILITY_GUIDE.length}`)
+
+    for (let i = 1; i < AVAILABILITY_GUIDE.length; i++) {
+      fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Siguiente' }))
+    }
+    const lastStep = screen.getByRole('dialog', { name: '¡Listo!' })
+    expect(lastStep).toHaveTextContent('Manuales → Guía de disponibilidad')
+    fireEvent.click(within(lastStep).getByRole('button', { name: 'Terminar' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(localStorage.getItem(GUIDE_SEEN_KEY)).toBe('1')
+  })
+
+  it('no se abre si ya se ha visto, pero sí desde el menú (?guia=1)', async () => {
+    renderPage()
+    await screen.findByText('octubre 2026')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    cleanup()
+
+    renderPage('/admin/disponibilidad?guia=1')
+    const dialog = await screen.findByRole('dialog', { name: AVAILABILITY_GUIDE[0].title })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Saltar guía' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 })
