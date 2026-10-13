@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
-  buildMonthWindows,
-  monthDays,
+  mergeRanges,
   occupancy,
-  rangesError,
   shortCode,
   subtractTimes,
   timeOptions,
@@ -24,19 +22,10 @@ describe('madridDateTime', () => {
   })
 })
 
-describe('weekdayIndex y monthDays', () => {
-  it('numera la semana desde el lunes', () => {
+describe('weekdayIndex', () => {
+  it('usa el lunes como 0 y el domingo como 6', () => {
     expect(weekdayIndex('2026-11-02')).toBe(0) // lunes
     expect(weekdayIndex('2026-11-08')).toBe(6) // domingo
-  })
-
-  it('lista los días del mes de los días de la semana elegidos, desde una fecha', () => {
-    // Sábados y domingos de noviembre de 2026
-    expect(monthDays('2026-11', new Set([5, 6]))).toEqual([
-      '2026-11-01', '2026-11-07', '2026-11-08', '2026-11-14', '2026-11-15',
-      '2026-11-21', '2026-11-22', '2026-11-28', '2026-11-29',
-    ])
-    expect(monthDays('2026-11', new Set([5]), '2026-11-15')).toEqual(['2026-11-21', '2026-11-28'])
   })
 })
 
@@ -66,74 +55,38 @@ describe('subtractTimes', () => {
   })
 })
 
-describe('rangesError', () => {
-  it('acepta franjas separadas y rechaza las vacías o solapadas', () => {
-    expect(
-      rangesError([
-        { start: '16:00', end: '18:00' },
-        { start: '09:00', end: '14:00' },
-      ]),
-    ).toBeNull()
-    expect(rangesError([{ start: '14:00', end: '14:00' }])).not.toBeNull()
-    expect(
-      rangesError([
-        { start: '09:00', end: '14:00' },
-        { start: '13:00', end: '18:00' },
-      ]),
-    ).not.toBeNull()
-  })
-})
-
-const iso = (windows: { start: Date; end: Date }[]) =>
-  windows.map((w) => [w.start.toISOString(), w.end.toISOString()])
-
-describe('buildMonthWindows', () => {
-  it('crea las franjas de cada día, ordenadas, respetando el cambio de hora', () => {
-    const windows = buildMonthWindows(['2026-10-31', '2026-10-24'], [{ start: '10:00', end: '14:00' }], [])
-    expect(iso(windows)).toEqual([
-      ['2026-10-24T08:00:00.000Z', '2026-10-24T12:00:00.000Z'],
-      ['2026-10-31T09:00:00.000Z', '2026-10-31T13:00:00.000Z'],
-    ])
-  })
-
-  it('admite varias franjas horarias por día', () => {
-    const windows = buildMonthWindows(
-      ['2026-11-07'],
+describe('mergeRanges', () => {
+  it('ordena y fusiona los tramos que se solapan o se tocan', () => {
+    const merged = mergeRanges(
       [
-        { start: '16:00', end: '18:00' },
-        { start: '09:00', end: '14:00' },
+        { start: '13:00', end: '15:00' },
+        { start: '17:00', end: '19:00' },
       ],
-      [],
+      [
+        { start: '09:00', end: '14:00' },
+        { start: '15:00', end: '16:00' },
+      ],
     )
-    expect(iso(windows)).toEqual([
-      ['2026-11-07T08:00:00.000Z', '2026-11-07T13:00:00.000Z'],
-      ['2026-11-07T15:00:00.000Z', '2026-11-07T17:00:00.000Z'],
+    expect(merged).toEqual([
+      { start: '09:00', end: '16:00' },
+      { start: '17:00', end: '19:00' },
     ])
-  })
-
-  it('aplica las excepciones solo a su día y descarta tramos demasiado cortos', () => {
-    const windows = buildMonthWindows(
-      ['2026-11-07', '2026-11-14'],
-      [{ start: '10:00', end: '14:00' }],
-      [{ day: '2026-11-07', start: '10:15', end: '12:00' }],
-      30,
-    )
-    expect(iso(windows)).toEqual([
-      ['2026-11-07T11:00:00.000Z', '2026-11-07T13:00:00.000Z'],
-      ['2026-11-14T09:00:00.000Z', '2026-11-14T13:00:00.000Z'],
-    ])
-  })
-
-  it('no crea nada si las franjas base no son válidas', () => {
-    expect(buildMonthWindows(['2026-11-07'], [{ start: '14:00', end: '10:00' }], [])).toEqual([])
   })
 })
 
 describe('uncoveredSessions', () => {
   it('devuelve las sesiones que no caben enteras en ninguna franja', () => {
-    const windows = [{ start: new Date('2026-11-07T08:00:00Z'), end: new Date('2026-11-07T13:00:00Z') }]
-    const inside = { start: new Date('2026-11-07T12:30:00Z'), end: new Date('2026-11-07T13:00:00Z') }
-    const crossing = { start: new Date('2026-11-07T12:45:00Z'), end: new Date('2026-11-07T13:15:00Z') }
+    const windows = [
+      { start: new Date('2026-11-07T08:00:00Z'), end: new Date('2026-11-07T13:00:00Z') },
+    ]
+    const inside = {
+      start: new Date('2026-11-07T12:30:00Z'),
+      end: new Date('2026-11-07T13:00:00Z'),
+    }
+    const crossing = {
+      start: new Date('2026-11-07T12:45:00Z'),
+      end: new Date('2026-11-07T13:15:00Z'),
+    }
     expect(uncoveredSessions([inside, crossing], windows)).toEqual([crossing])
   })
 })

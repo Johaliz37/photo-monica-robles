@@ -9,6 +9,8 @@ type Props = {
   /** "danger" pinta el botón de confirmar en rojo. */
   tone?: 'primary' | 'danger'
   busy?: boolean
+  /** Impide confirmar (p. ej. porque el cambio afecta a reservas). */
+  confirmDisabled?: boolean
   error?: string | null
   onConfirm: () => void
   onCancel: () => void
@@ -22,6 +24,7 @@ export default function ConfirmDialog({
   cancelLabel = 'Volver',
   tone = 'primary',
   busy = false,
+  confirmDisabled = false,
   error,
   onConfirm,
   onCancel,
@@ -66,7 +69,12 @@ export default function ConfirmDialog({
         <button type="button" onClick={onCancel} disabled={busy} className={BUTTON_SECONDARY}>
           {cancelLabel}
         </button>
-        <button type="button" onClick={onConfirm} disabled={busy} className={confirmClass}>
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={busy || confirmDisabled}
+          className={confirmClass}
+        >
           {busy ? 'Guardando…' : confirmLabel}
         </button>
       </div>

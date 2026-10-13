@@ -16,28 +16,40 @@ export type Database = {
         }
         Relationships: []
       }
-      availability_months: {
+      availability_rules: {
         Row: {
-          exclusions: NonNullable<Json>
-          month: string
-          ranges: NonNullable<Json>
+          created_at: string
+          day: string
+          end_time: string
+          id: string
+          kind: Database['public']['Enums']['availability_kind']
+          repeat: Database['public']['Enums']['availability_repeat']
+          start_time: string
+          until_day: string | null
           updated_at: string
-          weekdays: number[]
         }
         ComputedFields: never
         Insert: {
-          exclusions?: NonNullable<Json>
-          month: string
-          ranges?: NonNullable<Json>
+          created_at?: string
+          day: string
+          end_time: string
+          id?: string
+          kind: Database['public']['Enums']['availability_kind']
+          repeat?: Database['public']['Enums']['availability_repeat']
+          start_time: string
+          until_day?: string | null
           updated_at?: string
-          weekdays?: number[]
         }
         Update: {
-          exclusions?: NonNullable<Json>
-          month?: string
-          ranges?: NonNullable<Json>
+          created_at?: string
+          day?: string
+          end_time?: string
+          id?: string
+          kind?: Database['public']['Enums']['availability_kind']
+          repeat?: Database['public']['Enums']['availability_repeat']
+          start_time?: string
+          until_day?: string | null
           updated_at?: string
-          weekdays?: number[]
         }
         Relationships: []
       }
@@ -178,6 +190,7 @@ export type Database = {
           tiktok: string
           updated_at: string
         }
+        ComputedFields: never
         Insert: {
           about?: string
           bizum?: string
@@ -213,6 +226,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      availability_day_ranges: { Args: { p_day: string }; Returns: unknown }
+      availability_rule_days: {
+        Args: {
+          p_day: string
+          p_repeat: Database['public']['Enums']['availability_repeat']
+          p_until: string
+        }
+        Returns: string[]
+      }
       cfg_baby_extra_cents: { Args: Record<PropertyKey, never>; Returns: number }
       cfg_baby_extra_min: { Args: Record<PropertyKey, never>; Returns: number }
       cfg_buffer_min: { Args: Record<PropertyKey, never>; Returns: number }
@@ -236,6 +258,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_availability_rule: { Args: { p_id: string }; Returns: undefined }
       get_availability: { Args: { p_from: string; p_to: string }; Returns: Json }
       get_public_profile: {
         Args: Record<PropertyKey, never>
@@ -253,6 +276,7 @@ export type Database = {
         }[]
       }
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
+      rebuild_availability: { Args: { p_days: string[] }; Returns: undefined }
       review_booking: {
         Args: {
           p_id: string
@@ -261,18 +285,22 @@ export type Database = {
         }
         Returns: undefined
       }
-      save_month_availability: {
+      save_availability_rule: {
         Args: {
-          p_exclusions: Json
-          p_month: string
-          p_ranges: Json
-          p_weekdays: number[]
-          p_windows: Json
+          p_day: string
+          p_end: string
+          p_id?: string
+          p_kind: Database['public']['Enums']['availability_kind']
+          p_repeat: Database['public']['Enums']['availability_repeat']
+          p_start: string
+          p_until?: string
         }
-        Returns: undefined
+        Returns: string
       }
     }
     Enums: {
+      availability_kind: 'disponible' | 'no_disponible'
+      availability_repeat: 'unico' | 'mes' | 'hasta'
       booking_status: 'pendiente' | 'aceptada' | 'rechazada'
     }
     CompositeTypes: {
@@ -385,6 +413,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      availability_kind: ['disponible', 'no_disponible'],
+      availability_repeat: ['unico', 'mes', 'hasta'],
       booking_status: ['pendiente', 'aceptada', 'rechazada'],
     },
   },

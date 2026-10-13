@@ -4,7 +4,7 @@
 --
 -- Cómo usarlo: copiar todo en Supabase → SQL Editor → Run. Es irreversible.
 --
--- Borra: reservas, franjas de disponibilidad y configuración por mes, y
+-- Borra: reservas, rangos y franjas de disponibilidad, y
 -- restablece el perfil a los valores iniciales (migraciones 0004 y 0005).
 -- Si quieres conservar el perfil, quita el bloque "Perfil".
 -- No toca: auth.users, admins ni packages (semilla fija).
@@ -19,8 +19,8 @@ begin;
 
 -- Reservas primero: el trigger impide borrar franjas con reservas activas
 delete from public.bookings;
+delete from public.availability_rules;
 delete from public.availability_windows;
-delete from public.availability_months;
 
 -- Perfil
 insert into public.profile (id, full_name, phone, email, bizum, instagram, facebook, tiktok,
@@ -44,7 +44,7 @@ commit;
 -- Comprobación: todo a 0 salvo admins, packages (3) y profile (1)
 select 'bookings' as tabla, count(*) from public.bookings
 union all select 'availability_windows', count(*) from public.availability_windows
-union all select 'availability_months',  count(*) from public.availability_months
+union all select 'availability_rules',   count(*) from public.availability_rules
 union all select 'profile',              count(*) from public.profile
 union all select 'packages',             count(*) from public.packages
 union all select 'admins',               count(*) from public.admins

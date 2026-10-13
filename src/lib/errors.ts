@@ -11,14 +11,13 @@ const MESSAGES: Record<string, string> = {
   RECEIPT_TYPE: 'Formato no admitido. Sube una imagen (JPG, PNG o WEBP) o un PDF.',
   RECEIPT_TOO_BIG: 'El archivo pesa más de 5 MB. Sube una captura de pantalla o un PDF más ligero.',
   // Panel de administración
-  WINDOW_OVERLAP: 'Se solapa con una franja existente.',
   WINDOW_HAS_BOOKINGS: 'No se puede borrar: tiene reservas activas. Recházalas primero.',
   INVALID_TRANSITION: 'Esta reserva ya cambió de estado. Recarga la página.',
   NOT_ADMIN: 'Tu usuario no tiene permisos de administración.',
   NOT_FOUND: 'No se ha encontrado. Puede que ya se haya borrado.',
   BOOKINGS_OUTSIDE_WINDOWS:
-    'Hay reservas activas que quedarían fuera del nuevo horario. Ajusta la disponibilidad para cubrirlas o recházalas primero.',
-  PAST_MONTH: 'Ese mes ya ha pasado.',
+    'Hay reservas activas que quedarían fuera de la disponibilidad. Ajusta el rango para que las siga cubriendo o recházalas primero.',
+  PAST_DAY: 'No se pueden crear rangos en días pasados.',
   INVALID_DATA: 'Los datos no son válidos. Revisa el formulario.',
   PHOTO_TYPE: 'Formato no admitido. Sube una imagen JPG, PNG o WEBP.',
   PHOTO_TOO_BIG: 'La imagen pesa más de 10 MB. Elige una más ligera.',

@@ -1,17 +1,13 @@
 // Consultas del panel de administración. Usan la sesión autenticada: la barrera real es la RLS (is_admin()).
-import type { Exclusion, TimeRange } from './admin'
-import type { Database, Json, Tables } from './database.types'
+import type { Rule, RuleInput } from './availability'
+import type { Database, Tables } from './database.types'
 import { AppError } from './errors'
-import type { Range } from './slots'
 import { supabase } from './supabase'
 
 export type Booking = Tables<'bookings'>
 export type BookingStatus = Database['public']['Enums']['booking_status']
 export type AvailabilityWindow = Tables<'availability_windows'>
 export type StatusFilter = BookingStatus | 'todas'
-
-// Código SQLSTATE de exclusion_violation (franjas solapadas)
-const EXCLUSION_VIOLATION = '23P01'
 
 export async function fetchBookings(params: {
   status: StatusFilter
@@ -69,37 +65,56 @@ export async function receiptUrl(path: string): Promise<string> {
 
 // ===== Disponibilidad =====
 
-export interface Agenda {
-  windows: AvailabilityWindow[]
-  /** Reservas activas (pendientes y aceptadas) del periodo. */
-  bookings: Booking[]
-}
-
-/** Reservas activas (pendientes y aceptadas) que se solapan con [from, to), por hora de inicio. */
-export async function fetchActiveBookings(from: Date, to: Date): Promise<Booking[]> {
-  const { data, error } = await supabase
-    .from('bookings')
-    .select('*')
-    .neq('status', 'rechazada')
-    .lt('starts_at', to.toISOString())
-    .gt('ends_at', from.toISOString())
-    .order('starts_at')
+/** Reservas activas (pendientes y aceptadas) que se solapan con [from, to), o desde `from` sin `to`. */
+export async function fetchActiveBookings(from: Date, to?: Date): Promise<Booking[]> {
+  let query = supabase.from('bookings').select('*').neq('status', 'rechazada')
+  if (to) query = query.lt('starts_at', to.toISOString())
+  const { data, error } = await query.gt('ends_at', from.toISOString()).order('starts_at')
   if (error) throw error
   return data
 }
 
-export async function fetchAgenda(from: Date, to: Date): Promise<Agenda> {
-  const [windows, bookings] = await Promise.all([
-    supabase
-      .from('availability_windows')
-      .select('*')
-      .lt('starts_at', to.toISOString())
-      .gt('ends_at', from.toISOString())
-      .order('starts_at'),
-    fetchActiveBookings(from, to),
-  ])
-  if (windows.error) throw windows.error
-  return { windows: windows.data, bookings }
+/** Todos los rangos de disponibilidad (únicos y series). */
+export async function fetchAvailabilityRules(): Promise<Rule[]> {
+  const { data, error } = await supabase
+    .from('availability_rules')
+    .select('*')
+    .order('day')
+    .order('start_time')
+  if (error) throw error
+  // Postgres devuelve "09:00:00"
+  return data.map((r) => ({
+    id: r.id,
+    kind: r.kind,
+    day: r.day,
+    start: r.start_time.slice(0, 5),
+    end: r.end_time.slice(0, 5),
+    repeat: r.repeat,
+    until: r.until_day,
+  }))
+}
+
+/**
+ * Crea (id null) o edita un rango. El servidor recalcula las franjas de los días afectados y
+ * falla con BOOKINGS_OUTSIDE_WINDOWS si alguna reserva activa se quedaría fuera.
+ */
+export async function saveAvailabilityRule(id: string | null, rule: RuleInput): Promise<void> {
+  const { error } = await supabase.rpc('save_availability_rule', {
+    p_kind: rule.kind,
+    p_day: rule.day,
+    p_start: rule.start,
+    p_end: rule.end,
+    p_repeat: rule.repeat,
+    p_until: rule.repeat === 'hasta' ? (rule.until ?? undefined) : undefined,
+    p_id: id ?? undefined,
+  })
+  if (error) throw error
+}
+
+/** Borra un rango (si es una serie, entera). Mismas comprobaciones que al guardar. */
+export async function deleteAvailabilityRule(id: string): Promise<void> {
+  const { error } = await supabase.rpc('delete_availability_rule', { p_id: id })
+  if (error) throw error
 }
 
 // ===== Perfil =====
@@ -196,64 +211,4 @@ export async function fetchDashboardData(): Promise<DashboardData> {
   if (bookings.error) throw bookings.error
   if (windows.error) throw windows.error
   return { bookings: bookings.data, windows: windows.data }
-}
-
-/** Configuración guardada de la disponibilidad de un mes (base + excepciones). */
-export interface MonthConfig {
-  /** 0 = lunes … 6 = domingo. */
-  weekdays: number[]
-  ranges: TimeRange[]
-  exclusions: Exclusion[]
-  updatedAt: string
-}
-
-export async function fetchMonthConfig(month: string): Promise<MonthConfig | null> {
-  const { data, error } = await supabase
-    .from('availability_months')
-    .select('*')
-    .eq('month', month)
-    .maybeSingle()
-  if (error) throw error
-  if (!data) return null
-  return {
-    weekdays: data.weekdays,
-    ranges: data.ranges as unknown as TimeRange[],
-    exclusions: data.exclusions as unknown as Exclusion[],
-    updatedAt: data.updated_at,
-  }
-}
-
-/**
- * Guarda la configuración del mes y reemplaza sus franjas de hoy en adelante, todo en una
- * transacción. Falla con BOOKINGS_OUTSIDE_WINDOWS si alguna reserva activa quedaría fuera.
- */
-export async function saveMonthAvailability(
-  month: string,
-  config: Omit<MonthConfig, 'updatedAt'>,
-  windows: Range[],
-): Promise<void> {
-  const { error } = await supabase.rpc('save_month_availability', {
-    p_month: month,
-    p_weekdays: config.weekdays,
-    p_ranges: config.ranges as unknown as Json,
-    p_exclusions: config.exclusions as unknown as Json,
-    p_windows: windows.map((w) => ({
-      starts_at: w.start.toISOString(),
-      ends_at: w.end.toISOString(),
-    })),
-  })
-  if (error?.code === EXCLUSION_VIOLATION) throw new AppError('WINDOW_OVERLAP')
-  if (error) throw error
-}
-
-/** Borra la franja. El trigger lanza WINDOW_HAS_BOOKINGS si tiene reservas activas. */
-export async function deleteWindow(id: string): Promise<void> {
-  const { data, error } = await supabase
-    .from('availability_windows')
-    .delete()
-    .eq('id', id)
-    .select('id')
-  if (error) throw error
-  // Con la RLS, una fila que no se puede borrar no da error: simplemente no se borra
-  if (data.length === 0) throw new AppError('NOT_FOUND')
 }

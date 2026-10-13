@@ -5,7 +5,7 @@ SPA para vender los paquetes de Navidad 2026 y gestionar las reservas. Ver [CLAU
 ## Uso diario (para Mónica)
 
 1. Entrar en `https://<web>/admin` con el email y la contraseña de admin.
-2. **Disponibilidad** (`/admin/disponibilidad`): crear las franjas en las que se puede reservar (día, hora de inicio y de fin). La web pública solo ofrece huecos dentro de esas franjas, con 15 min de margen entre sesiones. Una franja con reservas no se puede borrar.
+2. **Disponibilidad** (`/admin/disponibilidad`): en el calendario del mes, elegir un día y seleccionar un rango de horas: disponible o no disponible, único o en serie (todo el mes o hasta una fecha). La web pública solo ofrece huecos dentro de lo disponible, con 15 min de margen entre sesiones. No se puede guardar ni eliminar un rango si deja alguna reserva activa sin disponibilidad.
 3. **Reservas** (`/admin`): las nuevas aparecen como _pendiente_. Abrir cada una, comprobar el comprobante del adelanto (20 €) y marcarla como **aceptada** o **rechazada**. Una reserva rechazada libera el hueco al momento.
 
 No hay avisos por email ni WhatsApp: conviene entrar al panel cada día durante la campaña.
@@ -100,7 +100,7 @@ No hay "¿Olvidaste tu contraseña?" en el MVP. Se cambia desde el dashboard de 
 
 Para borrar los datos de prueba antes de abrir la web (o empezar de cero) sin tocar los usuarios. Es irreversible.
 
-1. En **SQL Editor**, pegar y ejecutar [supabase/scripts/reset-data.sql](supabase/scripts/reset-data.sql): borra las reservas y la disponibilidad (franjas y configuración por mes) y restablece el perfil a sus valores iniciales. **No** toca `auth.users`, `admins` ni `packages`. Para conservar el perfil, quitar su bloque antes de ejecutar.
+1. En **SQL Editor**, pegar y ejecutar [supabase/scripts/reset-data.sql](supabase/scripts/reset-data.sql): borra las reservas y la disponibilidad (rangos y franjas) y restablece el perfil a sus valores iniciales. **No** toca `auth.users`, `admins` ni `packages`. Para conservar el perfil, quitar su bloque antes de ejecutar.
 2. En **Storage**, vaciar los buckets (**… → Empty bucket**), porque los archivos no se pueden borrar con SQL: `receipts` y, si se ha limpiado el perfil, `avatars`.
 
 ## Retención de datos (enero de 2027)
