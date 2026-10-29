@@ -54,6 +54,10 @@ function ConnectionString([string]$label, [string]$ref) {
     if ($v -notmatch '^postgres(ql)?://') { 'Debe empezar por postgresql://' }
     elseif ($v -notmatch [Regex]::Escape($ref)) { "No es del proyecto $ref" }
     elseif ($v -match '\[YOUR-PASSWORD\]') { 'Falta sustituir [YOUR-PASSWORD] por la contraseña' }
+    # La conexión directa (db.<ref>.supabase.co) del plan Free solo tiene IPv6
+    elseif ($v -notmatch '\.pooler\.supabase\.com') {
+      'Es la "Direct connection"; usa la de "Session pooler" (…pooler.supabase.com:5432)'
+    }
   }.GetNewClosure() -secret
 }
 
