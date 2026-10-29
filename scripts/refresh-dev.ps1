@@ -49,6 +49,7 @@ function ProjectUrl([string]$label) {
 }
 
 function ConnectionString([string]$label, [string]$ref) {
+  $container = $db
   return AskValid "Cadena de conexión de $label (postgresql://...)" {
     param($v)
     if ($v -notmatch '^postgres(ql)?://') { 'Debe empezar por postgresql://' }
@@ -57,6 +58,19 @@ function ConnectionString([string]$label, [string]$ref) {
     # La conexión directa (db.<ref>.supabase.co) del plan Free solo tiene IPv6
     elseif ($v -notmatch '\.pooler\.supabase\.com') {
       'Es la "Direct connection"; usa la de "Session pooler" (…pooler.supabase.com:5432)'
+    }
+    # 6543 es el Transaction pooler, que no sirve para pg_dump
+    elseif ($v -notmatch '\.pooler\.supabase\.com:5432/') {
+      'Es el "Transaction pooler" (puerto 6543); usa el "Session pooler" (puerto 5432)'
+    }
+    else {
+      # Prueba la conexión ya, para no fallar a mitad de la copia
+      $ErrorActionPreference = 'Continue'
+      $out = docker exec $container psql $v -tAc 'select 1' 2>&1
+      if ($LASTEXITCODE -ne 0) {
+        $msg = (($out | Out-String) -replace '(?s).*FATAL:\s*', '') -replace '\s+', ' '
+        "No conecta: $($msg.Trim()). Si es la contraseña, cámbiala en Project Settings → Database"
+      }
     }
   }.GetNewClosure() -secret
 }
