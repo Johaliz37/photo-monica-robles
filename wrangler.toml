@@ -10,3 +10,7 @@ command = "node scripts/build.mjs"
 directory = "./dist"
 # Rutas desconocidas (/reservar, /admin/...) sirven index.html con 200
 not_found_handling = "single-page-application"
+
+# Necesario para `npx wrangler preview` (builds de ramas distintas de main, p. ej. develop).
+# Vacío: assets y compatibilidad se toman de arriba.
+[previews]
