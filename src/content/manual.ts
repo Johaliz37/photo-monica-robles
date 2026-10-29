@@ -286,7 +286,7 @@ export const ADMIN_MANUAL: Manual = {
         'En «Más opciones → Imágenes» cambias algunas fotos de la página de inicio. Los cambios se publican al momento (sin botón de guardar).',
       ],
       items: [
-        'Fotos de las secciones: Adicionales, Información adicional y la tarjeta «Y, por supuesto… vuestra sesión de Navidad» de Espadilla. Cada una tiene una sola foto: pulsa «Subir foto» o «Cambiar foto». Con «Quitar» vuelve a verse la foto por defecto.',
+        'Fotos de las secciones: Portada (la primera foto al abrir la web; se le pone encima el mismo velo crema para que el título se lea), Adicionales, Información adicional y la tarjeta «Y, por supuesto… vuestra sesión de Navidad» de Espadilla. Cada una tiene una sola foto: pulsa «Subir foto» o «Cambiar foto». Con «Quitar» vuelve a verse la foto por defecto.',
         'Carrusel «Momentos mágicos en familia»: aparece después de los paquetes. Pulsa «+ Añadir fotos» (puedes elegir varias a la vez), ordénalas con las flechas ← → y bórralas con «Borrar». Si no hay ninguna, la sección no se muestra.',
         'Descripción de la foto: una frase corta de lo que se ve («Hermanos abrazados junto al árbol»). La leen los lectores de pantalla y los buscadores. Pulsa «Guardar» junto al campo.',
         'Formatos: JPG, PNG o WEBP de hasta 10 MB. Se reducen solas a 1600 px por el lado mayor para que la web cargue rápido.',

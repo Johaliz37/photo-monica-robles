@@ -5,7 +5,7 @@ import type { Database } from './database.types'
 
 export type PublicSiteImage = Database['public']['Functions']['get_site_images']['Returns'][number]
 
-export type SiteImageSection = 'extras' | 'info' | 'christmas_session' | 'carousel'
+export type SiteImageSection = 'hero' | 'extras' | 'info' | 'christmas_session' | 'carousel'
 /** Secciones con una sola foto; si no hay subida, se usa la del código. */
 export type FixedSection = Exclude<SiteImageSection, 'carousel'>
 
@@ -22,6 +22,12 @@ export interface FixedSectionInfo {
 const christmasCard = ESPADILLA.cards.find((c) => c.slot === 'christmas_session')
 
 export const FIXED_SECTIONS: Record<FixedSection, FixedSectionInfo> = {
+  hero: {
+    label: 'Portada',
+    where: 'Fondo de la portada, la primera foto al abrir la web (con un velo crema encima).',
+    fallback: 'hero',
+    fallbackAlt: '',
+  },
   extras: {
     label: 'Adicionales',
     where: 'Junto a la lista de fotos extra y la galería completa.',

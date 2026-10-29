@@ -57,6 +57,11 @@ describe('moveItem', () => {
 })
 
 describe('FIXED_SECTIONS', () => {
+  it('la portada usa por defecto la foto actual del hero, decorativa', () => {
+    expect(FIXED_SECTIONS.hero.fallback).toBe('hero')
+    expect(FIXED_SECTIONS.hero.fallbackAlt).toBe('')
+  })
+
   it('la sesión de Navidad usa como respaldo la foto de su tarjeta de Espadilla', () => {
     expect(FIXED_SECTIONS.christmas_session.fallback).toBe('espadilla-trineo')
     expect(FIXED_SECTIONS.christmas_session.fallbackAlt).not.toBe('')

@@ -191,7 +191,7 @@ export default function AdminImages() {
         <p className="text-xs text-ink/70">
           Una foto por sección. Si quitas la tuya, vuelve a verse la foto por defecto.
         </p>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           {FIXED_SECTION_KEYS.map((section) => {
             const info = FIXED_SECTIONS[section]
             const image = fixed(section)

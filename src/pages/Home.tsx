@@ -23,7 +23,7 @@ export default function Home({ now: nowProp }: Props) {
   const siteImages = usePublicSiteImages()
   return (
     <>
-      <Hero now={now} />
+      <Hero now={now} siteImages={siteImages} />
       <PackagesSection now={now} />
       <ChristmasCarousel images={siteImages.images.carousel} />
       <Gallery />

@@ -11,7 +11,7 @@ SPA para vender los **paquetes de sesión de fotos de Navidad 2026** de Mónica 
 Fuente de verdad del contenido: `paquetes_navidad_2026.pdf` (no versionado, 9 páginas rasterizadas sin texto extraíble) e [images/](images/). El plan original está en [quiero-construir-una-web-steady-falcon.md](quiero-construir-una-web-steady-falcon.md) y el detalle por fases en [docs/fases/](docs/fases/). El [README.md](README.md) cubre despliegue, alta del admin, limpieza de la BD y retención de datos.
 
 ## Reglas de producto (no negociables en el MVP)
-- **Sin CMS**. Paquetes y textos se cambian editando `src/content/*.ts` y redesplegando. Excepciones editables en `/admin`: la **disponibilidad**, el **perfil** (nombre, teléfono, email, Bizum, redes, "Sobre mí" y foto) y las **imágenes** de la home (una foto en Adicionales, Información adicional y la tarjeta «vuestra sesión de Navidad», y el carrusel «Momentos mágicos en familia»).
+- **Sin CMS**. Paquetes y textos se cambian editando `src/content/*.ts` y redesplegando. Excepciones editables en `/admin`: la **disponibilidad**, el **perfil** (nombre, teléfono, email, Bizum, redes, "Sobre mí" y foto) y las **imágenes** de la home (una foto en la portada, Adicionales, Información adicional y la tarjeta «vuestra sesión de Navidad», y el carrusel «Momentos mágicos en familia»).
 - **Coste 0 €**: solo planes gratuitos (Cloudflare Workers, Supabase Free, GitHub Actions).
 - **Sin notificaciones** (ni email ni WhatsApp). Mónica entra en `/admin` para ver las reservas nuevas.
 - **Adelanto de 20 € fuera de la web** (Bizum o transferencia). El cliente **debe subir el comprobante** para enviar la reserva.

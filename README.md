@@ -8,7 +8,7 @@ SPA para vender los paquetes de Navidad 2026 y gestionar las reservas. Ver [CLAU
 2. **Disponibilidad** (`/admin/disponibilidad`): en el calendario del mes, elegir un día y seleccionar un rango de horas: disponible o no disponible, único o en serie (todo el mes o hasta una fecha). La web pública solo ofrece huecos dentro de lo disponible, con 15 min de margen entre sesiones. No se puede guardar ni eliminar un rango si deja alguna reserva activa sin disponibilidad.
 3. **Reservas** (`/admin`): las nuevas aparecen como _pendiente_. Abrir cada una, comprobar el comprobante del adelanto (20 €) y marcarla como **aceptada** o **rechazada**. Una reserva rechazada libera el hueco al momento.
 
-4. **Imágenes** (`/admin/imagenes`): cambiar la foto de Adicionales, Información adicional y la tarjeta «vuestra sesión de Navidad», y añadir, ordenar o borrar las fotos del carrusel «Momentos mágicos en familia».
+4. **Imágenes** (`/admin/imagenes`): cambiar la foto de portada (la primera de la home, con su velo crema), la de Adicionales, Información adicional y la tarjeta «vuestra sesión de Navidad», y añadir, ordenar o borrar las fotos del carrusel «Momentos mágicos en familia».
 
 No hay avisos por email ni WhatsApp: conviene entrar al panel cada día durante la campaña.
 

@@ -13,6 +13,8 @@ type Props = {
   sizes?: string
   /** Debe fijar la proporción (aspect-*) para que el hueco no cambie de tamaño. */
   className?: string
+  /** Para la portada: carga inmediata y prioritaria, y hueco liso (sin parpadeo) mientras carga. */
+  priority?: boolean
 }
 
 /** Foto de sección editable desde el admin, con la del código como respaldo. */
@@ -23,13 +25,23 @@ export default function SiteImage({
   fallbackAlt,
   sizes,
   className = '',
+  priority,
 }: Props) {
   if (!ready) {
-    return <div aria-hidden="true" className={`animate-pulse bg-cream-dark ${className}`} />
+    const placeholder = priority ? 'bg-cream' : 'animate-pulse bg-cream-dark'
+    return <div aria-hidden="true" className={`${placeholder} ${className}`} />
   }
   const url = image && siteImageUrl(import.meta.env.VITE_SUPABASE_URL, image.path)
   if (!image || !url) {
-    return <ResponsiveImage name={fallback} alt={fallbackAlt} sizes={sizes} className={className} />
+    return (
+      <ResponsiveImage
+        name={fallback}
+        alt={fallbackAlt}
+        sizes={sizes}
+        className={className}
+        priority={priority}
+      />
+    )
   }
   return (
     <img
@@ -37,8 +49,9 @@ export default function SiteImage({
       width={image.width}
       height={image.height}
       alt={image.alt || SITE_IMAGE_DEFAULT_ALT}
-      loading="lazy"
+      loading={priority ? 'eager' : 'lazy'}
       decoding="async"
+      fetchPriority={priority ? 'high' : undefined}
       className={className}
     />
   )

@@ -1,22 +1,30 @@
 import { Link } from 'react-router-dom'
-import ResponsiveImage from '@/components/ResponsiveImage'
+import SiteImage from '@/components/SiteImage'
 import { PRESALE } from '@/content/site'
 import { presaleStatus } from '@/lib/pricing'
+import type { SiteImagesState } from '@/lib/publicSiteImages'
+import { FIXED_SECTIONS } from '@/lib/siteImages'
 
 type Props = {
   now: Date
+  siteImages: SiteImagesState
 }
 
-export default function Hero({ now }: Props) {
+export default function Hero({ now, siteImages }: Props) {
   const showPresale = presaleStatus(now) !== 'ended'
+  const image = siteImages.images.hero
 
   return (
     <section className="relative isolate overflow-hidden">
-      <ResponsiveImage
-        name="hero"
-        alt=""
+      {/* Foto de portada: la subida en /admin/imagenes o, si no hay, la del código */}
+      <SiteImage
+        image={image}
+        ready={siteImages.ready}
+        fallback={FIXED_SECTIONS.hero.fallback}
+        fallbackAlt={FIXED_SECTIONS.hero.fallbackAlt}
         priority
-        className="absolute inset-0 -z-20 h-full w-full object-cover object-bottom"
+        // La foto por defecto se encuadra por abajo; una subida, por el centro
+        className={`absolute inset-0 -z-20 h-full w-full object-cover ${image ? 'object-center' : 'object-bottom'}`}
       />
       {/* Velo crema para que el texto se lea sobre la foto */}
       <div

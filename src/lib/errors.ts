@@ -21,6 +21,8 @@ const MESSAGES: Record<string, string> = {
   INVALID_DATA: 'Los datos no son válidos. Revisa el formulario.',
   PHOTO_TYPE: 'Formato no admitido. Sube una imagen JPG, PNG o WEBP.',
   PHOTO_TOO_BIG: 'La imagen pesa más de 10 MB. Elige una más ligera.',
+  SECTION_NOT_READY:
+    'Esta sección todavía no admite fotos en el servidor. Avisa al desarrollador (falta actualizar la base de datos).',
 }
 
 const GENERIC = 'Ha ocurrido un error. Inténtalo de nuevo.'

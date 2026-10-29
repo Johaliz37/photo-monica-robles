@@ -267,6 +267,9 @@ export async function setFixedSiteImage(
           .insert({ section, ...fields })
           .select('*')
           .single())
+    // La BD aún no admite esta sección (falta aplicar su migración)
+    if (error?.code === '23514' && error.message.includes('site_images_section_check'))
+      throw new AppError('SECTION_NOT_READY')
     if (error) throw error
     if (current) await removeSiteFiles([current.path])
     return data
