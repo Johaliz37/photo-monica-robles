@@ -13,6 +13,8 @@
     "images": "node scripts/build-images.mjs",
     "purge:receipts": "node scripts/purge-receipts.mjs",
     "seed:carousel": "node scripts/seed-carousel.mjs",
+    "copy:storage": "node scripts/copy-storage.mjs",
+    "refresh:dev": "powershell -ExecutionPolicy Bypass -File scripts/refresh-dev.ps1",
     "db:start": "npx -y supabase@latest start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,mailpit,supavisor,postgres-meta",
     "db:stop": "npx -y supabase@latest stop",
     "docker:up": "docker compose up",

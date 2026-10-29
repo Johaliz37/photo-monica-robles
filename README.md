@@ -51,13 +51,14 @@ Si falta alguna, la build de la preview **falla** (nunca se publica contra produ
 
 En Cloudflare: **Settings → Build → Branch control** con builds de ramas no productivas activadas (deploy command `npx wrangler versions upload`) y **Settings → Domains & Routes → Preview URLs** activadas. En GitHub, los secrets `DEV_SUPABASE_URL` y `DEV_SUPABASE_ANON_KEY` para el keepalive.
 
-**Refrescar el proyecto de desarrollo como copia de producción** (cadenas de conexión de **Project Settings → Database**, solo en la terminal):
+**Refrescar el proyecto de desarrollo como copia de producción**: `npm run refresh:dev` ([scripts/refresh-dev.ps1](scripts/refresh-dev.ps1)). Necesita Supabase local en marcha (`npm run db:start`), porque usa su `pg_dump`/`psql`. Pide por terminal, sin guardarlas, las cadenas de conexión de ambos proyectos (**Connect → Session pooler**; si la contraseña tiene caracteres especiales, hay que codificarla para URL), sus URLs y sus `service_role`, y el email y la contraseña de un admin de pruebas. Después:
 
-1. Esquema: `npx supabase db push --db-url "<DEV>"` (aplica todas las migraciones).
-2. Datos: `npx supabase db dump --db-url "<PROD>" --data-only --schema public -x public.admins -f prod-data.sql`; en dev, vaciar las tablas que siembran las migraciones (`packages`, `profile`…) y cargar el volcado con `psql`.
-3. Admin: `admins` no se copia (apunta a `auth.users` de producción). Crear un admin de pruebas en dev como en "Admin local" (con la URL y la `SERVICE_ROLE_KEY` de dev).
-4. Storage: copiar los buckets (`avatars`, `receipts`, `site-images`) con las `service_role` de ambos proyectos. `receipts` contiene datos personales de clientes: borrar el `prod-data.sql` al terminar.
-5. Supabase dev: registros públicos desactivados y `Site URL` = URL de la preview.
+1. Aplica todas las migraciones en dev (`supabase db push`).
+2. **Borra los datos de dev** y carga los del esquema `public` de producción, salvo `admins`, que apunta a `auth.users` de producción. El volcado se borra al terminar.
+3. Copia los buckets `avatars`, `receipts` y `site-images` (`npm run copy:storage`). `receipts` contiene datos personales de clientes.
+4. Crea el admin de pruebas en dev, o reutiliza el que ya exista, y lo añade a `admins`.
+
+En el Supabase de dev: registros públicos desactivados y `Site URL` = URL de la preview.
 
 ### Supabase (producción)
 
