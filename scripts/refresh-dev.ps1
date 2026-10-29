@@ -27,18 +27,59 @@ if (-not (docker ps --format '{{.Names}}' | Select-String -SimpleMatch $db)) {
   throw "No está en marcha el contenedor $db (npm run db:start)"
 }
 
-$prodDb = Ask 'Cadena de conexión de PRODUCCIÓN (postgresql://...)' -secret
-$devDb = Ask 'Cadena de conexión de DESARROLLO (postgresql://...)' -secret
-$prodApi = (Ask 'URL de PRODUCCIÓN (https://xxx.supabase.co)').TrimEnd('/')
-$devApi = (Ask 'URL de DESARROLLO (https://xxx.supabase.co)').TrimEnd('/')
-$prodKey = Ask 'service_role / secret key de PRODUCCIÓN' -secret
-$devKey = Ask 'service_role / secret key de DESARROLLO' -secret
-$adminEmail = Ask 'Email del admin de pruebas en desarrollo'
-$adminPassword = Ask 'Contraseña del admin de pruebas' -secret
+# Repite la pregunta hasta que $check devuelva '' (válido); si no, muestra el motivo.
+# Los datos ocultos no se ven al pegarlos: se informa de cuántos caracteres han llegado.
+function AskValid([string]$label, [scriptblock]$check, [switch]$secret) {
+  while ($true) {
+    $value = (Ask $label -secret:$secret).Trim()
+    $problem = & $check $value
+    if (-not $problem) { return $value }
+    Write-Host "  ✘ $problem (recibidos $($value.Length) caracteres). Vuelve a intentarlo." -ForegroundColor Yellow
+    if ($secret -and $value.Length -eq 0) {
+      Write-Host '    Si Ctrl+V no pega nada, prueba con clic derecho o Ctrl+Mayús+V.' -ForegroundColor Yellow
+    }
+  }
+}
 
-if ($prodApi -eq $devApi -or $prodDb -eq $devDb) { throw 'Producción y desarrollo son el mismo proyecto' }
+function ProjectUrl([string]$label) {
+  $url = AskValid "URL de $label (https://xxx.supabase.co)" {
+    param($v) if ($v -notmatch '^https://[a-z0-9]+\.supabase\.co/?$') { 'Debe ser https://<ref>.supabase.co' }
+  }
+  return $url.TrimEnd('/')
+}
+
+function ConnectionString([string]$label, [string]$ref) {
+  return AskValid "Cadena de conexión de $label (postgresql://...)" {
+    param($v)
+    if ($v -notmatch '^postgres(ql)?://') { 'Debe empezar por postgresql://' }
+    elseif ($v -notmatch [Regex]::Escape($ref)) { "No es del proyecto $ref" }
+    elseif ($v -match '\[YOUR-PASSWORD\]') { 'Falta sustituir [YOUR-PASSWORD] por la contraseña' }
+  }.GetNewClosure() -secret
+}
+
+function SecretKey([string]$label) {
+  return AskValid "service_role / secret key de $label" {
+    param($v) if ($v.Length -lt 20) { 'La clave está vacía o incompleta' }
+  } -secret
+}
+
+$prodApi = ProjectUrl 'PRODUCCIÓN'
+$prodRef = ([Uri]$prodApi).Host.Split('.')[0]
+$devApi = ProjectUrl 'DESARROLLO'
 $devRef = ([Uri]$devApi).Host.Split('.')[0]
-if ($devDb -notmatch [Regex]::Escape($devRef)) { throw "La cadena de DESARROLLO no es del proyecto $devRef" }
+if ($prodRef -eq $devRef) { throw "Producción y desarrollo son el mismo proyecto ($devRef)" }
+
+$prodDb = ConnectionString 'PRODUCCIÓN' $prodRef
+$devDb = ConnectionString 'DESARROLLO' $devRef
+$prodKey = SecretKey 'PRODUCCIÓN'
+$devKey = SecretKey 'DESARROLLO'
+$adminEmail = AskValid 'Email del admin de pruebas en desarrollo' {
+  param($v) if ($v -notmatch '^[^@\s]+@[^@\s]+\.[^@\s]+$') { 'Email no válido' }
+}
+$adminPassword = AskValid 'Contraseña del admin de pruebas (mín. 8 caracteres)' {
+  param($v) if ($v.Length -lt 8) { 'Demasiado corta' }
+} -secret
+
 $ok = Read-Host "Se BORRARÁN los datos de $devApi y se sustituirán por los de $prodApi. Escribe $devRef para seguir"
 if ($ok -ne $devRef) { throw 'Cancelado' }
 
