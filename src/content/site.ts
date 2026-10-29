@@ -75,6 +75,8 @@ export interface EspadillaCard {
   imageAlt?: string
   /** Clases de proporción y encuadre de la foto (por defecto, apaisada 2:1). */
   imageFrame?: string
+  /** La foto se puede cambiar en /admin/imagenes; `image` queda como respaldo. */
+  slot?: 'christmas_session'
 }
 
 // Página 6 del PDF
@@ -110,8 +112,33 @@ export const ESPADILLA = {
       text: 'Aprovechad la visita para vivir una experiencia muy especial y llevaros a casa un recuerdo de este año que os acompañará siempre.',
       image: 'espadilla-trineo',
       imageAlt: 'Trineo blanco y dorado con cojines y mantas entre árboles de Navidad iluminados',
+      slot: 'christmas_session',
     },
   ] satisfies EspadillaCard[],
+}
+
+/** Texto alternativo de las fotos subidas en /admin/imagenes que no tienen uno propio. */
+export const SITE_IMAGE_DEFAULT_ALT = 'Sesión de Navidad de Mónica Robles Fotografía'
+
+/** Álbum de fotos de la home (las fotos se suben en /admin/imagenes). */
+export const CAROUSEL = {
+  kicker: 'Hojea nuestro álbum de Navidad',
+  title: 'Momentos mágicos',
+  script: 'en familia',
+  intro:
+    'Así viven otras familias su sesión de Navidad: risas, abrazos y recuerdos que se quedan para siempre. ¿Os imagináis la vuestra?',
+  cta: 'Quiero nuestra sesión',
+  /** Pie manuscrito de las fotos sin descripción. */
+  caption: 'Navidad 2026',
+  /** Hoja en blanco al final del álbum (si el número de fotos es impar). */
+  emptyPage: {
+    title: 'Vuestra página',
+    text: 'Esta hoja espera vuestros recuerdos de Navidad.',
+    link: 'Reservar mi sesión',
+  },
+  autoplayMs: 6000,
+  /** Duración del paso de hoja. */
+  flipMs: 1100,
 }
 
 // TODO: pendiente de Mónica (IBAN y titular).

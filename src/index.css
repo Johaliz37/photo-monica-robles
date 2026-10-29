@@ -140,6 +140,155 @@
   transform: translateY(-50%);
 }
 
+/* ===== Álbum de fotos antiguo (ChristmasCarousel) ===== */
+/* Tapas de cuero granate con filete dorado */
+.album-cover {
+  background:
+    radial-gradient(ellipse at 25% 15%, rgb(255 255 255 / 0.14), transparent 45%),
+    radial-gradient(ellipse at 75% 95%, rgb(0 0 0 / 0.45), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.28'/%3E%3C/svg%3E"),
+    #5a1d1a;
+  box-shadow:
+    0 40px 70px -25px rgb(0 0 0 / 0.75),
+    0 0 0 1px rgb(0 0 0 / 0.4),
+    inset 0 0 0 3px #5a1d1a,
+    inset 0 0 0 4px rgb(201 169 110 / 0.7),
+    inset 0 0 0 7px #5a1d1a,
+    inset 0 0 0 8px rgb(201 169 110 / 0.4),
+    inset 0 0 50px rgb(0 0 0 / 0.55);
+}
+/* Papel envejecido: tono sepia, bordes tostados, manchas y grano */
+.album-paper {
+  position: relative;
+  background:
+    radial-gradient(circle at 12% 88%, rgb(120 72 30 / 0.16), transparent 20%),
+    radial-gradient(circle at 88% 10%, rgb(120 72 30 / 0.12), transparent 16%),
+    radial-gradient(circle at 70% 75%, rgb(150 100 40 / 0.08), transparent 12%),
+    radial-gradient(ellipse at center, #f5ead0 0%, #ecdab2 62%, #d2b07a 100%);
+}
+.album-paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+  opacity: 0.22;
+}
+/* Sombra del lomo y canto de las hojas apiladas */
+.album-page-left {
+  box-shadow:
+    inset -34px 0 34px -22px rgb(60 35 10 / 0.6),
+    -2px 1px 0 #e4d1a6,
+    -4px 2px 0 #c9aa76,
+    -6px 3px 0 #e4d1a6;
+}
+.album-page-right {
+  box-shadow:
+    inset 34px 0 34px -22px rgb(60 35 10 / 0.6),
+    2px 1px 0 #e4d1a6,
+    4px 2px 0 #c9aa76,
+    6px 3px 0 #e4d1a6;
+}
+/* Esquineros de papel negro que sujetan la foto */
+.album-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, #4a3423, #23170d);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.35));
+}
+.album-corner-tl {
+  top: -5px;
+  left: -5px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.album-corner-tr {
+  top: -5px;
+  right: -5px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+.album-corner-bl {
+  bottom: -5px;
+  left: -5px;
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+.album-corner-br {
+  bottom: -5px;
+  right: -5px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+.album-photo {
+  filter: sepia(0.18) saturate(0.92) contrast(0.97);
+}
+/* Hoja que pasa: gira sobre el lomo mostrando la cara de delante y la de detrás */
+.album-leaf {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.album-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.album-face-back {
+  transform: rotateY(180deg);
+}
+@keyframes album-turn-next {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(-180deg);
+  }
+}
+@keyframes album-turn-prev {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(180deg);
+  }
+}
+@keyframes album-turn-back {
+  from {
+    transform: rotateY(-180deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}
+@keyframes album-shade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.album-turn-next,
+.album-turn-prev,
+.album-turn-back {
+  animation-duration: var(--album-flip-ms);
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.3, 1);
+  animation-fill-mode: forwards;
+}
+.album-turn-next {
+  animation-name: album-turn-next;
+}
+.album-turn-prev {
+  animation-name: album-turn-prev;
+}
+.album-turn-back {
+  animation-name: album-turn-back;
+}
+/* Oscurece la hoja a mitad del giro, como la luz al levantarla */
+.album-shade {
+  opacity: 0;
+  background: linear-gradient(to right, rgb(40 20 5 / 0.35), transparent 70%);
+  animation: album-shade var(--album-flip-ms) ease-in-out;
+}
+
 /* Sin animaciones para quien lo pide en su sistema */
 @media (prefers-reduced-motion: reduce) {
   .snowfall {

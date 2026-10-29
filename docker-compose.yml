@@ -1,0 +1,15 @@
+# Frontend (Vite) en Docker. Supabase se levanta aparte con `npm run db:start`.
+services:
+  web:
+    image: node:24-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
+    ports:
+      - '5173:5173'
+    env_file: .env.local
+    environment:
+      VITE_USE_POLLING: 'true'
+    volumes:
+      - .:/app
+      # node_modules propios del contenedor (binarios nativos de Linux)
+      - /app/node_modules

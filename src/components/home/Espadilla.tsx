@@ -1,6 +1,8 @@
 import Divider from '@/components/Divider'
 import ResponsiveImage from '@/components/ResponsiveImage'
+import SiteImage from '@/components/SiteImage'
 import { ESPADILLA, type EspadillaCard } from '@/content/site'
+import type { SiteImagesState } from '@/lib/publicSiteImages'
 
 const imageClass = 'h-full w-full rounded-sm object-cover shadow-sm'
 // Media columna del contenedor (max-w-6xl = 1152 px) a partir de md; el navegador elige
@@ -22,7 +24,7 @@ function CardText({ card }: { card: EspadillaCard }) {
 }
 
 /** Collage como la página 6 del PDF: imagen a la izquierda y texto a la derecha. */
-export default function Espadilla() {
+export default function Espadilla({ siteImages }: { siteImages: SiteImagesState }) {
   return (
     <section aria-labelledby="espadilla" className="px-4 py-16">
       <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-2">
@@ -52,12 +54,23 @@ export default function Espadilla() {
         {ESPADILLA.cards.map((card) =>
           card.image ? (
             <div key={card.title} className="contents">
-              <ResponsiveImage
-                name={card.image}
-                alt={card.imageAlt ?? ''}
-                sizes={imageSizes}
-                className={`${card.imageFrame ?? 'aspect-[2/1]'} ${imageClass}`}
-              />
+              {card.slot ? (
+                <SiteImage
+                  image={siteImages.images[card.slot]}
+                  ready={siteImages.ready}
+                  fallback={card.image}
+                  fallbackAlt={card.imageAlt ?? ''}
+                  sizes={imageSizes}
+                  className={`${card.imageFrame ?? 'aspect-[2/1]'} ${imageClass}`}
+                />
+              ) : (
+                <ResponsiveImage
+                  name={card.image}
+                  alt={card.imageAlt ?? ''}
+                  sizes={imageSizes}
+                  className={`${card.imageFrame ?? 'aspect-[2/1]'} ${imageClass}`}
+                />
+              )}
               <CardText card={card} />
             </div>
           ) : (

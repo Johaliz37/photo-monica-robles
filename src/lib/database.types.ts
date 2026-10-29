@@ -221,6 +221,40 @@ export type Database = {
         }
         Relationships: []
       }
+      site_images: {
+        Row: {
+          alt: string
+          created_at: string
+          height: number
+          id: string
+          path: string
+          section: string
+          sort_order: number
+          width: number
+        }
+        ComputedFields: never
+        Insert: {
+          alt?: string
+          created_at?: string
+          height: number
+          id?: string
+          path: string
+          section: string
+          sort_order?: number
+          width: number
+        }
+        Update: {
+          alt?: string
+          created_at?: string
+          height?: number
+          id?: string
+          path?: string
+          section?: string
+          sort_order?: number
+          width?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -275,8 +309,20 @@ export type Database = {
           tiktok: string
         }[]
       }
+      get_site_images: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          alt: string
+          height: number
+          path: string
+          section: string
+          sort_order: number
+          width: number
+        }[]
+      }
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
       rebuild_availability: { Args: { p_days: string[] }; Returns: undefined }
+      reorder_carousel: { Args: { p_ids: string[] }; Returns: undefined }
       review_booking: {
         Args: {
           p_id: string

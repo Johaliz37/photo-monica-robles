@@ -8,6 +8,8 @@ SPA para vender los paquetes de Navidad 2026 y gestionar las reservas. Ver [CLAU
 2. **Disponibilidad** (`/admin/disponibilidad`): en el calendario del mes, elegir un día y seleccionar un rango de horas: disponible o no disponible, único o en serie (todo el mes o hasta una fecha). La web pública solo ofrece huecos dentro de lo disponible, con 15 min de margen entre sesiones. No se puede guardar ni eliminar un rango si deja alguna reserva activa sin disponibilidad.
 3. **Reservas** (`/admin`): las nuevas aparecen como _pendiente_. Abrir cada una, comprobar el comprobante del adelanto (20 €) y marcarla como **aceptada** o **rechazada**. Una reserva rechazada libera el hueco al momento.
 
+4. **Imágenes** (`/admin/imagenes`): cambiar la foto de Adicionales, Información adicional y la tarjeta «vuestra sesión de Navidad», y añadir, ordenar o borrar las fotos del carrusel «Momentos mágicos en familia».
+
 No hay avisos por email ni WhatsApp: conviene entrar al panel cada día durante la campaña.
 
 ## Despliegue
@@ -33,6 +35,30 @@ La configuración del Worker está en [wrangler.toml](wrangler.toml): sirve `dis
 
 Las `VITE_*` se inyectan al compilar, así que van en **Settings → Build → Variables and secrets**, no en las variables del Worker (esas son de runtime y Vite no las ve). Node 24 se toma de `.nvmrc`. `VITE_SITE_URL` es la URL pública sin barra final: tras el primer deploy, poner la de `workers.dev` (o el dominio) y volver a desplegar.
 
+### Ambiente de desarrollo (rama `develop`)
+
+Cada push a `develop` genera una _preview_ del mismo Worker en `https://develop-photo-monica-robles.<subdominio>.workers.dev`, contra un **segundo proyecto Supabase** (`monica-robles-dev`, Free: hasta 2 proyectos activos gratis por cuenta) que no comparte datos con producción.
+
+Las variables de build del Worker son las mismas para todas las ramas, así que [scripts/build.mjs](scripts/build.mjs) (lo llama `[build]` de `wrangler.toml`) sustituye en las ramas distintas de `main` las `VITE_*` por:
+
+| Variable de build       | Valor                                  |
+| ----------------------- | -------------------------------------- |
+| `DEV_SUPABASE_URL`      | URL del proyecto Supabase de desarrollo |
+| `DEV_SUPABASE_ANON_KEY` | Su publishable/anon key                 |
+| `DEV_SITE_URL`          | URL de la preview de `develop`          |
+
+Si falta alguna, la build de la preview **falla** (nunca se publica contra producción). La preview genera `robots.txt` con `Disallow: /` y sin `sitemap.xml`.
+
+En Cloudflare: **Settings → Build → Branch control** con builds de ramas no productivas activadas (deploy command `npx wrangler versions upload`) y **Settings → Domains & Routes → Preview URLs** activadas. En GitHub, los secrets `DEV_SUPABASE_URL` y `DEV_SUPABASE_ANON_KEY` para el keepalive.
+
+**Refrescar el proyecto de desarrollo como copia de producción** (cadenas de conexión de **Project Settings → Database**, solo en la terminal):
+
+1. Esquema: `npx supabase db push --db-url "<DEV>"` (aplica todas las migraciones).
+2. Datos: `npx supabase db dump --db-url "<PROD>" --data-only --schema public -x public.admins -f prod-data.sql`; en dev, vaciar las tablas que siembran las migraciones (`packages`, `profile`…) y cargar el volcado con `psql`.
+3. Admin: `admins` no se copia (apunta a `auth.users` de producción). Crear un admin de pruebas en dev como en "Admin local" (con la URL y la `SERVICE_ROLE_KEY` de dev).
+4. Storage: copiar los buckets (`avatars`, `receipts`, `site-images`) con las `service_role` de ambos proyectos. `receipts` contiene datos personales de clientes: borrar el `prod-data.sql` al terminar.
+5. Supabase dev: registros públicos desactivados y `Site URL` = URL de la preview.
+
 ### Supabase (producción)
 
 - **Authentication → URL Configuration**: `Site URL` = la URL pública; añadirla también a `Redirect URLs`.
@@ -52,6 +78,20 @@ Comprarlo (p. ej. en Cloudflare Registrar), añadirlo en el Worker en **Settings
 ### Copias de seguridad
 
 El plan Free no tiene backups descargables. Durante la campaña, exportar `bookings` cada semana: **Table editor → bookings → Export → CSV**. Alternativa con la CLI: `npx supabase db dump --data-only -f backup.sql` (con el proyecto enlazado).
+
+## Desarrollo local con Docker
+
+Requiere Docker Desktop en marcha.
+
+1. `npm run db:start`: levanta Supabase en Docker y aplica `supabase/migrations/`. Al terminar imprime `API_URL` y `ANON_KEY` (también con `npx supabase status -o env`).
+2. Crear `.env.local` con `VITE_SUPABASE_URL=http://127.0.0.1:54321` y `VITE_SUPABASE_ANON_KEY=<ANON_KEY>`. Es la URL del host porque las llamadas las hace el navegador.
+3. `npm run docker:up`: arranca Vite en un contenedor (instala dependencias de Linux en un volumen propio) en `http://localhost:5173`. Para pararlo, `npm run docker:down`; Supabase con `npm run db:stop`.
+4. Admin local (solo la primera vez o tras borrar los datos): crear el usuario con la Auth Admin API y la `SERVICE_ROLE_KEY` local, y darle permisos:
+   ```powershell
+   $sr = '<SERVICE_ROLE_KEY>'
+   $u = Invoke-RestMethod -Method Post http://127.0.0.1:54321/auth/v1/admin/users -Headers @{apikey=$sr;Authorization="Bearer $sr"} -ContentType 'application/json' -Body '{"email":"admin@local.test","password":"admin1234","email_confirm":true}'
+   docker exec supabase_db_monica-robles-navidad psql -U postgres -c "insert into public.admins values ('$($u.id)');"
+   ```
 
 ## Cambiar precios, paquetes o textos
 
@@ -95,6 +135,17 @@ No hay "¿Olvidaste tu contraseña?" en el MVP. Se cambia desde el dashboard de 
 
 - Los datos del titular (nombre, NIF, email y dirección opcional) están en `OWNER`, en [src/content/legal.ts](src/content/legal.ts). Mientras valgan `'TODO'`, `/privacidad` y `/aviso-legal` muestran "[pendiente]".
 - `VITE_SITE_URL` (URL pública, sin barra final) hace que el build genere `sitemap.xml` y URLs absolutas en `og:image`, que WhatsApp necesita para mostrar la tarjeta. Defínela en las variables de build de Cloudflare y vuelve a desplegar si cambia el dominio. `robots.txt` (con `Disallow: /admin`) se genera siempre.
+
+## Cargar las fotos iniciales del carrusel
+
+Las fotos de `images/Gallery/` (no versionadas) se suben al carrusel como si las hubiera subido Mónica desde el panel: archivo WebP de 1600 px en el bucket `site-images` y fila en `site_images`. Después se gestionan desde `/admin/imagenes`.
+
+```bash
+SUPABASE_URL=https://xxx.supabase.co SUPABASE_SERVICE_ROLE_KEY=... npm run seed:carousel          # simulación
+SUPABASE_URL=https://xxx.supabase.co SUPABASE_SERVICE_ROLE_KEY=... npm run seed:carousel -- --yes # sube
+```
+
+Si el carrusel ya tiene fotos no hace nada (añade `--force` para subirlas igualmente). En local, la URL es `http://127.0.0.1:54321` y la key sale de `npx supabase status`.
 
 ## Limpiar la base de datos
 

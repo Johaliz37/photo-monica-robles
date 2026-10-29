@@ -20,3 +20,15 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"p_from\":\"$(date -u +%FT%TZ)\",\"p_to\":\"$(date -u -d '+1 day' +%FT%TZ)\"}" \
             -o /dev/null -w "HTTP %{http_code}\n"
+      # Ambiente de desarrollo (rama develop); se salta si no hay secrets DEV_*
+      - name: Llamar a get_availability (desarrollo)
+        env:
+          SUPABASE_URL: ${{ secrets.DEV_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.DEV_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ]; then echo "Sin DEV_SUPABASE_URL: se omite"; exit 0; fi
+          curl -fsS --retry 3 --retry-delay 10 -X POST "$SUPABASE_URL/rest/v1/rpc/get_availability" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"p_from\":\"$(date -u +%FT%TZ)\",\"p_to\":\"$(date -u -d '+1 day' +%FT%TZ)\"}" \
+            -o /dev/null -w "HTTP %{http_code}\n"

@@ -2,9 +2,9 @@
 name = "photo-monica-robles"
 compatibility_date = "2026-10-01"
 
-# wrangler deploy compila antes de subir, aunque el "Build command" del dashboard esté vacío
+# wrangler deploy / versions upload compilan antes de subir (scripts/build.mjs elige el Supabase según la rama)
 [build]
-command = "npm run build"
+command = "node scripts/build.mjs"
 
 [assets]
 directory = "./dist"

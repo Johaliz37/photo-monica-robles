@@ -2,6 +2,7 @@
 import type { Rule, RuleInput } from './availability'
 import type { Database, Tables } from './database.types'
 import { AppError } from './errors'
+import type { FixedSection } from './siteImages'
 import { supabase } from './supabase'
 
 export type Booking = Tables<'bookings'>
@@ -144,55 +145,178 @@ const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 export const PHOTO_ACCEPT = PHOTO_TYPES.join(',')
 const PHOTO_MAX_BYTES = 10 * 1024 * 1024
 const PHOTO_SIDE_PX = 800
+const SITE_IMAGE_SIDE_PX = 1600
 
-/** Recorta la imagen al centro en cuadrado de 800 px y la pasa a WebP (o JPEG si no hay WebP). */
-async function squarePhoto(file: File): Promise<Blob> {
+interface ResizedImage {
+  blob: Blob
+  ext: 'webp' | 'jpg' | 'png'
+  width: number
+  height: number
+}
+
+/**
+ * Pasa la imagen a WebP (o al formato que sepa codificar el navegador) con el lado mayor
+ * limitado a `maxSide`. Con `square`, la recorta antes al centro en cuadrado.
+ */
+async function resizeImage(
+  file: File,
+  { maxSide, square = false }: { maxSide: number; square?: boolean },
+): Promise<ResizedImage> {
+  if (!PHOTO_TYPES.includes(file.type)) throw new AppError('PHOTO_TYPE')
+  if (file.size > PHOTO_MAX_BYTES) throw new AppError('PHOTO_TOO_BIG')
+
   const bitmap = await createImageBitmap(file)
-  const side = Math.min(bitmap.width, bitmap.height)
-  const out = Math.min(PHOTO_SIDE_PX, side)
+  const srcW = square ? Math.min(bitmap.width, bitmap.height) : bitmap.width
+  const srcH = square ? srcW : bitmap.height
+  const scale = Math.min(1, maxSide / Math.max(srcW, srcH))
+  const width = Math.round(srcW * scale)
+  const height = Math.round(srcH * scale)
   const canvas = document.createElement('canvas')
-  canvas.width = out
-  canvas.height = out
+  canvas.width = width
+  canvas.height = height
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new AppError('PHOTO_TYPE')
   ctx.drawImage(
     bitmap,
-    (bitmap.width - side) / 2,
-    (bitmap.height - side) / 2,
-    side,
-    side,
+    (bitmap.width - srcW) / 2,
+    (bitmap.height - srcH) / 2,
+    srcW,
+    srcH,
     0,
     0,
-    out,
-    out,
+    width,
+    height,
   )
   bitmap.close()
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, 'image/webp', 0.85),
   )
   if (!blob) throw new AppError('PHOTO_TYPE')
-  return blob
+  // Safari antiguo no codifica WebP y devuelve PNG
+  const ext = blob.type === 'image/webp' ? 'webp' : blob.type === 'image/jpeg' ? 'jpg' : 'png'
+  return { blob, ext, width, height }
 }
 
-/** Sube la foto de perfil al bucket público `avatars` y devuelve su nombre. */
-export async function uploadProfilePhoto(file: File): Promise<string> {
-  if (!PHOTO_TYPES.includes(file.type)) throw new AppError('PHOTO_TYPE')
-  if (file.size > PHOTO_MAX_BYTES) throw new AppError('PHOTO_TOO_BIG')
-
-  const body = await squarePhoto(file)
-  // Safari antiguo no codifica WebP y devuelve PNG
-  const ext = body.type === 'image/webp' ? 'webp' : body.type === 'image/jpeg' ? 'jpg' : 'png'
-  const name = `${crypto.randomUUID()}.${ext}`
+/** Sube un archivo a un bucket público con nombre aleatorio y devuelve su nombre. */
+async function uploadPublic(bucket: string, image: ResizedImage): Promise<string> {
+  const name = `${crypto.randomUUID()}.${image.ext}`
   const { data, error } = await supabase.storage
-    .from('avatars')
-    .upload(name, body, { upsert: false, contentType: body.type })
+    .from(bucket)
+    .upload(name, image.blob, { upsert: false, contentType: image.blob.type })
   if (error) throw error
   return data.path
+}
+
+/** Sube la foto de perfil (cuadrada, 800 px) al bucket público `avatars` y devuelve su nombre. */
+export async function uploadProfilePhoto(file: File): Promise<string> {
+  return uploadPublic('avatars', await resizeImage(file, { maxSide: PHOTO_SIDE_PX, square: true }))
 }
 
 /** Borra una foto del bucket `avatars`. Si falla, solo queda un archivo huérfano. */
 export async function deleteProfilePhoto(path: string): Promise<void> {
   await supabase.storage.from('avatars').remove([path])
+}
+
+// ===== Imágenes de la home =====
+
+export type SiteImageRow = Tables<'site_images'>
+
+const SITE_BUCKET = 'site-images'
+
+/** Todas las fotos de la home, por sección y en el orden del carrusel. */
+export async function fetchSiteImages(): Promise<SiteImageRow[]> {
+  const { data, error } = await supabase
+    .from('site_images')
+    .select('*')
+    .order('section')
+    .order('sort_order')
+    .order('created_at')
+  if (error) throw error
+  return data
+}
+
+/** Borra archivos del bucket `site-images`. Si falla, solo quedan archivos huérfanos. */
+async function removeSiteFiles(paths: string[]): Promise<void> {
+  if (paths.length > 0) await supabase.storage.from(SITE_BUCKET).remove(paths)
+}
+
+/**
+ * Sube la foto de una sección fija (Adicionales, Información adicional, sesión de Navidad).
+ * Si ya había una, la sustituye y borra el archivo anterior.
+ */
+export async function setFixedSiteImage(
+  section: FixedSection,
+  file: File,
+  alt: string,
+): Promise<SiteImageRow> {
+  const image = await resizeImage(file, { maxSide: SITE_IMAGE_SIDE_PX })
+  const path = await uploadPublic(SITE_BUCKET, image)
+  const fields = { path, alt, width: image.width, height: image.height }
+
+  try {
+    const { data: current, error: readError } = await supabase
+      .from('site_images')
+      .select('*')
+      .eq('section', section)
+      .maybeSingle()
+    if (readError) throw readError
+    const { data, error } = await (current
+      ? supabase.from('site_images').update(fields).eq('id', current.id).select('*').single()
+      : supabase
+          .from('site_images')
+          .insert({ section, ...fields })
+          .select('*')
+          .single())
+    if (error) throw error
+    if (current) await removeSiteFiles([current.path])
+    return data
+  } catch (err) {
+    await removeSiteFiles([path])
+    throw err
+  }
+}
+
+/** Añade una foto al final del carrusel. */
+export async function addCarouselImage(file: File, sortOrder: number): Promise<SiteImageRow> {
+  const image = await resizeImage(file, { maxSide: SITE_IMAGE_SIDE_PX })
+  const path = await uploadPublic(SITE_BUCKET, image)
+  const { data, error } = await supabase
+    .from('site_images')
+    .insert({
+      section: 'carousel',
+      path,
+      alt: '',
+      width: image.width,
+      height: image.height,
+      sort_order: sortOrder,
+    })
+    .select('*')
+    .single()
+  if (error) {
+    await removeSiteFiles([path])
+    throw error
+  }
+  return data
+}
+
+/** Cambia el texto alternativo (descripción) de una foto. */
+export async function updateSiteImageAlt(id: string, alt: string): Promise<void> {
+  const { error } = await supabase.from('site_images').update({ alt }).eq('id', id)
+  if (error?.code === '23514') throw new AppError('INVALID_DATA')
+  if (error) throw error
+}
+
+/** Guarda el orden del carrusel (lista completa de ids, de la primera a la última). */
+export async function reorderCarousel(ids: string[]): Promise<void> {
+  const { error } = await supabase.rpc('reorder_carousel', { p_ids: ids })
+  if (error) throw error
+}
+
+/** Borra una foto (fila y archivo). En las secciones fijas vuelve a verse la foto del código. */
+export async function deleteSiteImage(image: SiteImageRow): Promise<void> {
+  const { error } = await supabase.from('site_images').delete().eq('id', image.id)
+  if (error) throw error
+  await removeSiteFiles([image.path])
 }
 
 // ===== Dashboard =====

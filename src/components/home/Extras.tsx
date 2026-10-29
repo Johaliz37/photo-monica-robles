@@ -1,6 +1,8 @@
-import ResponsiveImage from '@/components/ResponsiveImage'
 import SectionTitle from '@/components/SectionTitle'
+import SiteImage from '@/components/SiteImage'
 import { EXTRAS } from '@/content/site'
+import type { SiteImagesState } from '@/lib/publicSiteImages'
+import { FIXED_SECTIONS } from '@/lib/siteImages'
 
 function PhotosIcon() {
   return (
@@ -22,15 +24,17 @@ function PhotosIcon() {
   )
 }
 
-export default function Extras() {
+export default function Extras({ siteImages }: { siteImages: SiteImagesState }) {
   return (
     <section aria-labelledby="adicionales" className="bg-cream-dark/50 px-4 py-16">
       <div className="mx-auto max-w-5xl">
         <SectionTitle id="adicionales">Adicionales</SectionTitle>
         <div className="grid items-center gap-8 md:grid-cols-[2fr_3fr]">
-          <ResponsiveImage
-            name="studio-1"
-            alt="Niño pequeño riendo junto a un reno dorado y árboles de Navidad en el estudio"
+          <SiteImage
+            image={siteImages.images.extras}
+            ready={siteImages.ready}
+            fallback={FIXED_SECTIONS.extras.fallback}
+            fallbackAlt={FIXED_SECTIONS.extras.fallbackAlt}
             sizes="(min-width: 1024px) 400px, (min-width: 768px) 40vw, 100vw"
             className="mx-auto aspect-[3/4] w-full max-w-sm rounded-sm object-cover"
           />

@@ -1,19 +1,23 @@
 import { Fragment } from 'react'
 import Divider from '@/components/Divider'
-import ResponsiveImage from '@/components/ResponsiveImage'
 import SectionTitle from '@/components/SectionTitle'
+import SiteImage from '@/components/SiteImage'
 import { INFO } from '@/content/site'
+import type { SiteImagesState } from '@/lib/publicSiteImages'
+import { FIXED_SECTIONS } from '@/lib/siteImages'
 
-export default function AdditionalInfo() {
+export default function AdditionalInfo({ siteImages }: { siteImages: SiteImagesState }) {
   return (
     <section aria-labelledby="informacion" className="px-4 py-16">
       <div className="mx-auto max-w-2xl">
         <SectionTitle id="informacion" script="Adicional">
           Información
         </SectionTitle>
-        <ResponsiveImage
-          name="studio-2"
-          alt="Niña con jersey de corazones y falda de tul roja sentada entre regalos en el estudio navideño"
+        <SiteImage
+          image={siteImages.images.info}
+          ready={siteImages.ready}
+          fallback={FIXED_SECTIONS.info.fallback}
+          fallbackAlt={FIXED_SECTIONS.info.fallbackAlt}
           sizes="(min-width: 672px) 672px, 100vw"
           className="mb-10 aspect-[3/2] w-full rounded-sm object-cover"
         />

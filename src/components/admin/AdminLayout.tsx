@@ -106,6 +106,7 @@ export default function AdminLayout() {
   const secondaryLinks = [
     { to: '/admin/disponibilidad', label: 'Disponibilidad' },
     { to: '/admin/perfil', label: 'Perfil' },
+    { to: '/admin/imagenes', label: 'Imágenes' },
   ]
   const inManuals = location.pathname.startsWith('/admin/manual')
   // El botón del desplegable se resalta si la página actual está dentro

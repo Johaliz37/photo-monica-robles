@@ -45,7 +45,7 @@ export const CLIENT_MANUAL: Manual = {
       id: 'cliente-inicio',
       title: 'La página de inicio',
       paragraphs: [
-        'La página de inicio presenta la campaña: los paquetes con sus precios, la galería de fotos, la escapada a Espadilla, los extras, la información adicional (forma de pago, pruebas y entrega), «Sobre mí» y los datos de contacto.',
+        'La página de inicio presenta la campaña: los paquetes con sus precios, el carrusel de fotos «Momentos mágicos en familia», la galería de fotos, la escapada a Espadilla, los extras, la información adicional (forma de pago, pruebas y entrega), «Sobre mí» y los datos de contacto.',
         `Durante la preventa (del 11 al 16 de octubre) los precios aparecen con un ${PRESALE.discountPct} % de descuento y el precio normal tachado. Pasado ese plazo se aplica el precio normal automáticamente.`,
       ],
       items: packageItems,
@@ -144,7 +144,7 @@ export const CLIENT_MANUAL: Manual = {
 export const ADMIN_MANUAL: Manual = {
   title: 'Manual de administración',
   intro:
-    'Cómo gestionar las reservas, la disponibilidad y tu perfil desde el panel de administración (/admin).',
+    'Cómo gestionar las reservas, la disponibilidad, tu perfil y las imágenes de la página de inicio desde el panel de administración (/admin).',
   sections: [
     {
       id: 'admin-acceso',
@@ -280,10 +280,24 @@ export const ADMIN_MANUAL: Manual = {
       tip: 'Cuando hay cambios aparece «Tienes cambios sin guardar». Pulsa «Guardar perfil» y comprueba el resultado con «Ver la web ↗».',
     },
     {
+      id: 'admin-imagenes',
+      title: 'Imágenes',
+      paragraphs: [
+        'En «Más opciones → Imágenes» cambias algunas fotos de la página de inicio. Los cambios se publican al momento (sin botón de guardar).',
+      ],
+      items: [
+        'Fotos de las secciones: Adicionales, Información adicional y la tarjeta «Y, por supuesto… vuestra sesión de Navidad» de Espadilla. Cada una tiene una sola foto: pulsa «Subir foto» o «Cambiar foto». Con «Quitar» vuelve a verse la foto por defecto.',
+        'Carrusel «Momentos mágicos en familia»: aparece después de los paquetes. Pulsa «+ Añadir fotos» (puedes elegir varias a la vez), ordénalas con las flechas ← → y bórralas con «Borrar». Si no hay ninguna, la sección no se muestra.',
+        'Descripción de la foto: una frase corta de lo que se ve («Hermanos abrazados junto al árbol»). La leen los lectores de pantalla y los buscadores. Pulsa «Guardar» junto al campo.',
+        'Formatos: JPG, PNG o WEBP de hasta 10 MB. Se reducen solas a 1600 px por el lado mayor para que la web cargue rápido.',
+      ],
+      tip: 'Las fotos horizontales se ven enteras en el carrusel, pero lucen más las verticales.',
+    },
+    {
       id: 'admin-limites',
       title: 'Lo que no se cambia desde el panel',
       paragraphs: [
-        'Los paquetes, los precios, las fechas de la preventa, los textos de la web, las fotos, el IBAN y los textos legales están en el código. Para cambiarlos, pídeselo al desarrollador.',
+        'Los paquetes, los precios, las fechas de la preventa, los textos de la web, el resto de fotos, el IBAN y los textos legales están en el código. Para cambiarlos, pídeselo al desarrollador.',
         'Los comprobantes de más de 6 meses se borran periódicamente por protección de datos.',
       ],
     },

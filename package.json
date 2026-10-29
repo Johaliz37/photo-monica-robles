@@ -12,8 +12,11 @@
     "format": "prettier --write .",
     "images": "node scripts/build-images.mjs",
     "purge:receipts": "node scripts/purge-receipts.mjs",
+    "seed:carousel": "node scripts/seed-carousel.mjs",
     "db:start": "npx -y supabase@latest start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,mailpit,supavisor,postgres-meta",
     "db:stop": "npx -y supabase@latest stop",
+    "docker:up": "docker compose up",
+    "docker:down": "docker compose down",
     "db:types": "npx -y supabase@latest gen types typescript --local --schema public > src/lib/database.types.ts && prettier --write src/lib/database.types.ts"
   },
   "dependencies": {

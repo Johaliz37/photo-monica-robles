@@ -12,8 +12,9 @@ const PUBLIC_ROUTES = ['/', '/reservar', '/privacidad', '/aviso-legal']
  * - convierte en absolutas las URLs de imagen de index.html (WhatsApp y Facebook no aceptan relativas);
  * - genera sitemap.xml y enlaza el sitemap desde robots.txt.
  * Sin ella, solo se genera robots.txt.
+ * Con noindex (ambiente de desarrollo), robots.txt lo bloquea todo y no hay sitemap.xml.
  */
-function seo(siteUrl: string): Plugin {
+function seo(siteUrl: string, noindex: boolean): Plugin {
   return {
     name: 'seo',
     apply: 'build',
@@ -27,11 +28,11 @@ function seo(siteUrl: string): Plugin {
       if (!siteUrl) {
         this.warn('VITE_SITE_URL no está definida: sin sitemap.xml ni URLs absolutas en og:image')
       }
-      const robots = ['User-agent: *', 'Disallow: /admin', '']
-      if (siteUrl) robots.push(`Sitemap: ${siteUrl}/sitemap.xml`, '')
+      const robots = ['User-agent: *', noindex ? 'Disallow: /' : 'Disallow: /admin', '']
+      if (siteUrl && !noindex) robots.push(`Sitemap: ${siteUrl}/sitemap.xml`, '')
       this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots.join('\n') })
 
-      if (siteUrl) {
+      if (siteUrl && !noindex) {
         const urls = PUBLIC_ROUTES.map((r) => `  <url><loc>${siteUrl}${r}</loc></url>`).join('\n')
         this.emitFile({
           type: 'asset',
@@ -45,9 +46,12 @@ function seo(siteUrl: string): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const siteUrl = (loadEnv(mode, process.cwd(), 'VITE_').VITE_SITE_URL ?? '').replace(/\/+$/, '')
+  const env = loadEnv(mode, process.cwd(), 'VITE_')
+  const siteUrl = (env.VITE_SITE_URL ?? '').replace(/\/+$/, '')
   return {
-    plugins: [react(), tailwindcss(), seo(siteUrl)],
+    plugins: [react(), tailwindcss(), seo(siteUrl, env.VITE_NOINDEX === '1')],
+    // En Docker sobre Windows los cambios del bind mount solo se detectan por polling
+    server: { watch: { usePolling: process.env.VITE_USE_POLLING === 'true' } },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
